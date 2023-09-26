@@ -1,36 +1,44 @@
 <script>
-import getData from '@/getdb.js';
+import startSession from '@/startSession.js';
 export default {
   name: 'App',
   data() {
     return {
-      db: [],
-      index: 0,
-      kanji: ''
+      sessionData: {
+        //duration: 10
+      },
+      progress: 0
     }
   },
   methods: {
-    kanji2() {
-      this.kanji = this.db[this.index++][0];
+  },
+  computed: {
+    persentage() {
+      return Math.round(this.progress / this.sessionData.duration * 100);
     }
   },
   created() {
     console.timeLog('tt', 'created!');
-    getData('kanji', 'A', 'D').then(response => {
-      this.db = response;
-      this.kanji2();
-      console.timeLog('tt', 'received data!');
-    });
+    /* this.session = startSession();
+    console.log(this.session) */
+    startSession().then(data => this.sessionData = data);
   },
 }
   
 </script>
 
 <template>
-  <button @click="kanji2">next</button>
-  <!-- <h1>{{ db[index][0] }}</h1> -->
-  <h1>{{ kanji }}</h1>
-  <p v-for="card in db">{{ card }}</p>
+  <p>
+    <strong>
+    {{ progress }}/
+    {{ sessionData.duration }}: 
+    {{ persentage }}% | </strong>
+    l:{{ sessionData.learnNumber }} |
+    c:{{ sessionData.confirmNumber }} |
+    r:{{ sessionData.repeatNumber }}
+
+  </p>
+
 </template>
 
 <style scoped>

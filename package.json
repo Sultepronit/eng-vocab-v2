@@ -1,5 +1,5 @@
 {
-  "name": "vue2",
+  "name": "eng-vocab-v2",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "eslint": "^8.50.0",
     "vue": "^3.3.4"
   },
   "devDependencies": {
