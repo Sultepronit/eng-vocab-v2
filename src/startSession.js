@@ -69,9 +69,9 @@ function parseDb(dataSheet) {
             s: e[0],
             f: e[1],
             b: e[2],
-            w: e[6],
-            trsc: e[7],
-            trsl: e[8],
+            word: e[6],
+            transc: e[7],
+            transl: e[8],
             e: e[9]
         };
         //console.log(obj);
