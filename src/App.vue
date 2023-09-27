@@ -1,6 +1,8 @@
 <script>
-import startSession from '@/startSession.js';
-import nextCard from '@/nextCard.js';
+import startSession from '@/startSession';
+import nextCard from '@/nextCard';
+import pronunciation from '@/pronunciation';
+import { pron } from '@/pronunciation';
 export default {
   name: 'App',
   data() {
@@ -10,22 +12,47 @@ export default {
 
       current: {},
 
+      stage: 'QUESTION',
+
       word: 'word',
       transc: 'transcription',
       transl: 'translation',
 
-      showButton: true
+      buttons: 'SHOW',
+      //audio: null
     }
   },
   methods: {
     showNext() {
+      this.stage = 'QUESTION';
+      this.buttons = 'SHOW';
+
       this.current = nextCard(this.sessionData);
-      this.word = this.current.card.word;
-      this.transc = this.current.card.transc;
-      this.transl = this.current.card.transl;
+      //pronunciation(this.audio, this.current.card.word);
+      pron('load', this.current.card.word);
+
+      this.word = this.current.direction === 'FORWARD'
+        ? this.current.card.word : '';
+      this.transc = '';
+      this.transl = this.current.direction === 'BACKWARD'
+        ? this.current.card.transl : '';
     },
     showAnswer() {
-      this.showButton = false;
+      this.stage = 'EVALUATION';
+      this.buttons = 'EVALUATE';
+
+      //this.audio.play();
+      pron('play');
+
+      this.transc = this.current.card.transc;
+      if(this.current.direction === 'BACKWARD') {
+        this.word = this.current.card.word;
+      } else {
+        this.transl = this.current.card.transl;
+      }
+    },
+    play() {
+      pron('play');
     }
   },
   computed: {
@@ -39,6 +66,8 @@ export default {
       this.sessionData = data;
       this.showNext();
     });
+    //this.audio = new Audio();
+    //console.log(pron);
   },
 }
   
@@ -56,12 +85,14 @@ export default {
 
   </p>
 
+  <button @click="play">play</button>
+
   <p class="word">{{ word }}</p>
   <p class="transc">{{ transc }}</p>
   <p class="transl">{{ transl }}</p>
 
-  <button v-show="showButton" @click="showAnswer">show</button>
-  <section v-show="!showButton">
+  <button v-show="buttons==='SHOW'" @click="showAnswer">show</button>
+  <section v-show="buttons==='EVALUATE'">
     <button @click="showNext">plus</button>
     <button>neutral</button>
     <button>minus</button>

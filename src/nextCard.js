@@ -1,6 +1,6 @@
 import cf from '@/commonFunctions';
-import soundObject from '@/soundObject';
-const audio = new Audio();
+/* import soundObject from '@/soundObject';
+const audio = new Audio(); */
 
 function nextCard({ cards, content, learnList, confirmList, repeatList }) {
     const cardType = cf.pullRandomFromArray(content);
@@ -15,12 +15,16 @@ function nextCard({ cards, content, learnList, confirmList, repeatList }) {
     const currentCard = cards[currentCardId];
     console.log(currentCard);
 
-    const urls = soundObject[currentCard.word.toLowerCase()];
+    const direction = (currentCard.f > currentCard.b) ? "BACKWARD" : "FORWARD";
+
+    /* const urls = soundObject[currentCard.word.toLowerCase()];
     console.log(urls);
     audio.src = urls[0];
     audio.play();
 
-    return {cardType, cardId: currentCardId, card: currentCard };
+    console.log(audio.preload); */
+
+    return {cardType, cardId: currentCardId, card: currentCard, direction };
 }
 
 export default nextCard;
