@@ -1,10 +1,10 @@
 <script>
 import startSession from '@/startSession';
 import nextCard from '@/nextCard';
-import pronunciation from '@/pronunciation';
 import { pron } from '@/pronunciation';
 export default {
-  name: 'App',
+  //name: 'App',
+  name: 'English',
   data() {
     return {
       sessionData: {},
@@ -19,7 +19,6 @@ export default {
       transl: 'translation',
 
       buttons: 'SHOW',
-      //audio: null
     }
   },
   methods: {
