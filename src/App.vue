@@ -24,10 +24,20 @@ export default {
       transl: 'translation',
 
       buttons: 'SHOW',
+
+      playback: false,
+      setPlayback(change) {
+        this.playback = change;
+        //this.playback--;
+      },
+      finishedSpeaking() {
+        console.log('Finished!!!');
+      }
     }
   },
   methods: {
     showNext() {
+      this.setPlayback(false);
       this.stage = 'QUESTION';
       this.buttons = 'SHOW';
 
@@ -46,7 +56,9 @@ export default {
       this.buttons = 'EVALUATE';
 
       //this.audio.play();
-      pron('play');
+      //pron('play');
+      this.playback = true;
+      //this.setPlayback(false);
 
       this.transc = this.current.card.transc;
       this.word = this.current.word.answer;
@@ -60,11 +72,6 @@ export default {
     play() {
       pron('play');
     }
-  },
-  watch: {
-      word(newOne) {
-          console.log('the word has changed: ' + newOne);
-      }
   },
   computed: {
     persentage() {
@@ -97,6 +104,12 @@ export default {
   </p>
 
   <button @click="play">play</button>
+  <speaker
+    :variants="current.word.variants"
+    :playback="playback"
+    :set-playback="setPlayback"
+    :finished-speaking="finishedSpeaking"
+  ></speaker>
 
   <!-- <p class="word">{{ word }}</p> -->
   <p class="word" v-html="word"></p>
@@ -109,8 +122,6 @@ export default {
     <button>neutral</button>
     <button>minus</button>
   </section>
-
-  <speaker :word="current.word.variants"></speaker>
 
 </template>
 

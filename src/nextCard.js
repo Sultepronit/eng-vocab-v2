@@ -35,8 +35,8 @@ function nextCard({ cards, content, learnList, confirmList, repeatList }) {
             : pullRandomFromArray(repeatList);
 
     console.log(cardId);
-    //const currentCard = cards[cardId];
-    const currentCard = cards[23];
+    const currentCard = cards[cardId];
+    //const currentCard = cards[23];
     //const currentCard = cards[380];
     console.log(currentCard);
 
