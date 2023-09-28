@@ -1,16 +1,21 @@
 <script>
+import Speaker from './components/Speaker.vue';
 import startSession from '@/startSession';
 import nextCard from '@/nextCard';
 import { pron } from '@/pronunciation';
 export default {
-  //name: 'App',
-  name: 'English',
+  name: 'App',
+  components: {
+    Speaker
+  },
   data() {
     return {
       sessionData: {},
       progress: 0,
 
-      current: {},
+      current: {
+        word: { variants: [] }
+      },
 
       stage: 'QUESTION',
 
@@ -29,9 +34,9 @@ export default {
       this.current = nextCard(this.sessionData);
       //pronunciation(this.audio, this.current.card.word);
       pron('load', this.current.card.word);
-
+      console.log(this.current.word);
       this.word = this.current.direction === 'FORWARD'
-        ? this.current.card.word : '';
+        ? this.current.word.question : '';
       this.transc = '';
       this.transl = this.current.direction === 'BACKWARD'
         ? this.current.card.transl : '';
@@ -44,8 +49,10 @@ export default {
       pron('play');
 
       this.transc = this.current.card.transc;
+      this.word = this.current.word.answer;
       if(this.current.direction === 'BACKWARD') {
-        this.word = this.current.card.word;
+        //this.word = this.current.card.word;
+        //this.word = this.current.word.answer;
       } else {
         this.transl = this.current.card.transl;
       }
@@ -53,6 +60,11 @@ export default {
     play() {
       pron('play');
     }
+  },
+  watch: {
+      word(newOne) {
+          console.log('the word has changed: ' + newOne);
+      }
   },
   computed: {
     persentage() {
@@ -86,7 +98,8 @@ export default {
 
   <button @click="play">play</button>
 
-  <p class="word">{{ word }}</p>
+  <!-- <p class="word">{{ word }}</p> -->
+  <p class="word" v-html="word"></p>
   <p class="transc">{{ transc }}</p>
   <p class="transl">{{ transl }}</p>
 
@@ -97,8 +110,7 @@ export default {
     <button>minus</button>
   </section>
 
-  <!-- <p v-for="card in sessionData.content">{{ card }}</p> -->
-  <!-- <p>{{ sessionData.content.length }}</p> -->
+  <speaker :word="current.word.variants"></speaker>
 
 </template>
 

@@ -8,4 +8,4 @@ function pullRandomFromArray(array) {
     array.splice(index, 1);
     return item;
 } 
-export default { randomFromRange, pullRandomFromArray };
+export { randomFromRange, pullRandomFromArray };
