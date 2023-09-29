@@ -1,0 +1,13 @@
+{
+    "rules": {
+        "quotes": "off"
+    },
+    "env": {
+        "browser": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2022,
+        "sourceType": "module"
+    },
+    "extends": ["plugin:vue/vue3-recommended"]
+}

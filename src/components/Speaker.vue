@@ -1,6 +1,5 @@
 <template>
     <button @click="speak">speak!</button>
-    <p>{{ variants }}</p>
 </template>
 
 <script>
@@ -9,7 +8,7 @@ import { randomFromRange } from '@/commonFunctions';
 
 export default {
     name: 'Speaker',
-    props: ['variants', 'setPlayback', 'trigger'],
+    props: ['variants', 'playback', 'setPlayback', 'trigger'],
     data() {
         return {
             playList: [],
@@ -65,13 +64,19 @@ export default {
             console.log(newStatus);
             this.speak();
         },
+        /* playback(change) {
+            if(change) {
+                console.log('playbakked!');
+                this.speak();
+            }
+        }, */
         variants(newOne) {
             console.log('the variants has changed: ' + newOne);
             console.log(newOne.length);
             this.playList = [];
-            for(let v of this.variants) {
-                console.log(v);
-                const urls = soundObject[v.toLowerCase()];
+            for(let variant of this.variants) {
+                console.log(variant);
+                const urls = soundObject[variant.toLowerCase()];
                 console.log(urls);
                 if(urls) {
                     this.playList.push({
@@ -86,7 +91,7 @@ export default {
                 } else {
                     this.playList.push({
                         type: 'generate',
-                        text: v
+                        text: variant
                     });
                 }
             }

@@ -2,7 +2,9 @@ import { randomFromRange, pullRandomFromArray } from './commonFunctions';
 
 function splitWordVariants(chunk) {
 	const parts = chunk.split('/');
-    if(parts.length < 2) return { variants: parts, question: chunk, answer: chunk };
+    if(parts.length < 2) return {
+        variants: parts, question: chunk, answer: chunk, hint: ''
+    };
 
 	parts.shift();
 	const half = parts.length / 2;
@@ -44,7 +46,6 @@ function nextCard({ cards, content, learnList, confirmList, repeatList }) {
 
     const word = splitWordVariants(currentCard.word);
     console.log(word);
-    console.log(word.question == word.answer);
 
     return { cardType, cardId, card: currentCard, direction, word };
 }

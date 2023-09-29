@@ -36,10 +36,10 @@ export default {
 
       this.current = nextCard(this.sessionData);
       //pronunciation(this.audio, this.current.card.word);
-      pron('load', this.current.card.word);
+      //pron('load', this.current.card.word);
       console.log(this.current.word);
       this.word = this.current.direction === 'FORWARD'
-        ? this.current.word.question : '';
+        ? this.current.word.question : this.current.word.hint;
       this.transc = '';
       this.transl = this.current.direction === 'BACKWARD'
         ? this.current.card.transl : '';
@@ -110,11 +110,10 @@ export default {
   <button @click="play">play</button>
   <speaker
     :variants="current.word.variants"
+    :playback="playback"
     :set-playback="changePlaybackStatus"
     :trigger="changeToPlay"
-  ></speaker>
-  <p>{{ playback }}</p>
-  <!-- <p class="word">{{ word }}</p> -->
+  />
   <p class="word" v-html="word"></p>
   <p class="transc">{{ transc }}</p>
   <p class="transl">{{ transl }}</p>

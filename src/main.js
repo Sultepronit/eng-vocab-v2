@@ -7,3 +7,5 @@ import App from './App.vue';
 
 createApp(App).mount('#app');
 
+// npm i -D eslint
+// npm i -D vite-plugin-eslint -f
