@@ -83,10 +83,9 @@ function parseDb(dataSheet) {
     return result;
 }
 
-async function startSession() {
+async function fetchDB() {
     const dataSheet = await getData('db', 'A', 'L');
     console.timeLog('tt', 'received data!');
-    //console.log(dataSheet);
 
     const parsedDb = parseDb(dataSheet);
     console.timeLog('tt', 'parsed sheet');
@@ -95,8 +94,23 @@ async function startSession() {
     console.log(session);
     console.timeLog('tt', 'prepared session!');
 
-    //return session;
+    localStorage.setItem('session', JSON.stringify(session));
+    console.timeLog('tt', 'saved to localStorage!');
+
     return new Promise(res => res(session));
+}
+
+async function startSession() {
+    const restoredSessionJson = localStorage.getItem('session');
+    if(restoredSessionJson) {
+        const restoredSession = JSON.parse(restoredSessionJson);
+        console.log(restoredSession);
+        console.timeLog('tt', 'restored session!');
+        return new Promise(res => res(restoredSession));
+    } else {
+        return fetchDB();
+    }
+    //return fetchDB();
 }
 
 export default startSession;

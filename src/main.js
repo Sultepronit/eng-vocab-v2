@@ -9,3 +9,4 @@ createApp(App).mount('#app');
 
 // npm i -D eslint
 // npm i -D vite-plugin-eslint -f
+// npm i eslint-plugin-vue
