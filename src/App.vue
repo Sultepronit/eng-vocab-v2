@@ -26,18 +26,16 @@ export default {
       buttons: 'SHOW',
 
       playback: false,
-      setPlayback(change) {
+      changePlaybackStatus(change) {
+        console.log('change??');
         this.playback = change;
-        //this.playback--;
+        console.log(this.playback);
       },
-      finishedSpeaking() {
-        console.log('Finished!!!');
-      }
+      changeToPlay: 0
     }
   },
   methods: {
     showNext() {
-      this.setPlayback(false);
       this.stage = 'QUESTION';
       this.buttons = 'SHOW';
 
@@ -57,8 +55,9 @@ export default {
 
       //this.audio.play();
       //pron('play');
-      this.playback = true;
-      //this.setPlayback(false);
+      //this.playback = true;
+      //this.changePlaybackStatus(false);
+      this.changeToPlay++;
 
       this.transc = this.current.card.transc;
       this.word = this.current.word.answer;
@@ -76,6 +75,11 @@ export default {
   computed: {
     persentage() {
       return Math.round(this.progress / this.sessionData.duration * 100);
+    }
+  },
+  watch: {
+    playback(status) {
+      console.log('playback: ', status);
     }
   },
   created() {
@@ -106,18 +110,17 @@ export default {
   <button @click="play">play</button>
   <speaker
     :variants="current.word.variants"
-    :playback="playback"
-    :set-playback="setPlayback"
-    :finished-speaking="finishedSpeaking"
+    :set-playback="changePlaybackStatus"
+    :trigger="changeToPlay"
   ></speaker>
-
+  <p>{{ playback }}</p>
   <!-- <p class="word">{{ word }}</p> -->
   <p class="word" v-html="word"></p>
   <p class="transc">{{ transc }}</p>
   <p class="transl">{{ transl }}</p>
 
   <button v-show="buttons==='SHOW'" @click="showAnswer">show</button>
-  <section v-show="buttons==='EVALUATE'">
+  <section v-show="buttons==='EVALUATE' && !playback">
     <button @click="showNext">plus</button>
     <button>neutral</button>
     <button>minus</button>

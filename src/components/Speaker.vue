@@ -9,7 +9,7 @@ import { randomFromRange } from '@/commonFunctions';
 
 export default {
     name: 'Speaker',
-    props: ['variants', 'playback','setPlayback', 'finishedSpeaking'],
+    props: ['variants', 'setPlayback', 'trigger'],
     data() {
         return {
             playList: [],
@@ -26,8 +26,8 @@ export default {
                 this.speakNext();
             } else {
                 console.log('Finished!');
-                //this.setPlayback(false);
-                this.finishedSpeaking();
+                this.setPlayback(false);
+                //this.finishedSpeaking();
             }
         } 
         this.utterance.lang = 'en';
@@ -55,11 +55,16 @@ export default {
         },
         speak() {
             console.log('here we go!');
+            this.setPlayback(true);
             this.counter = 0;
             this.speakNext();
         }
     },
     watch: {
+        trigger(newStatus) {
+            console.log(newStatus);
+            this.speak();
+        },
         variants(newOne) {
             console.log('the variants has changed: ' + newOne);
             console.log(newOne.length);
@@ -86,12 +91,6 @@ export default {
                 }
             }
             console.log(this.playList);
-        },
-        playback(newStatus) {
-            console.log(newStatus);
-            if(newStatus) {
-                this.speak();
-            }
         }
     }
 }
