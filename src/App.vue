@@ -26,11 +26,6 @@ export default {
       buttons: 'SHOW',
 
       playback: false,
-      changePlaybackStatus(change) {
-        console.log('change??');
-        this.playback = change;
-        console.log(this.playback);
-      },
       changeToPlay: 0
     }
   },
@@ -70,7 +65,12 @@ export default {
     },
     play() {
       pron('play');
-    }
+    },
+    changePlaybackStatus(change) {
+        console.log('change??');
+        this.playback = change;
+        console.log(this.playback);
+    },
   },
   computed: {
     persentage() {
