@@ -1,5 +1,6 @@
 <template>
   <button @click="start">speak!</button>
+  <span>{{ numberOfVoices }}</span>
 </template>
 
 <script>
@@ -15,7 +16,7 @@ export default {
             counter: 0,
             utterance: new SpeechSynthesisUtterance('Hello there!'),
             voices: [],
-            numberOfVoices: 1,
+            numberOfVoices: 0,
             audio: new Audio()
         }
     },
@@ -28,12 +29,12 @@ export default {
         }
     },
     beforeCreate() {
+        console.log('before create audio')
         const utterance = new SpeechSynthesisUtterance('Hello there!');
         speechSynthesis.speak(utterance);
-        utterance.onend = () => {
-            console.log('ended!');
+        setTimeout(() => {
             const voices = speechSynthesis.getVoices();
-            console.log(voices);
+            //console.log(voices);
             for(let voice of voices) {
                 if(voice.lang.match('en')) {
                     //console.log(voice);
@@ -42,18 +43,17 @@ export default {
             }
             this.numberOfVoices = this.voices.length;
             console.log(this.voices);
-        }
+        }, 2000);
     },
     created() {
         this.audio.onended = this.utterance.onend = () => {
-            console.log('It was good!');
+            //console.log('It was good!');
             //console.log(this.counter, this.variants.length);
             if(++this.counter < this.variants.length) {
                 this.speakNext();
             } else {
-                console.log('Finished!');
+                //console.log('Finished!');
                 this.setPlayback(false);
-
                 // preloading first variant of pronunciation for next manual play
                 this.prepareFirst(); 
             }
@@ -62,7 +62,6 @@ export default {
 
         this.utterance.lang = 'en';
         this.utterance.rate = 0.8;
-        //speechSynthesis.speak(this.utterance);
     },
     methods: {
         prepareRecord(item) {
@@ -102,10 +101,7 @@ export default {
             if(item.type === 'play') {
                 this.prepareRecord(item)
             } else {
-                //console.log(this.voices);
-                //this.utterance.voice = this.voices[ 1 ];
                 if(this.numberOfVoices > 1) {
-                    console.log('chose voice');
                     this.utterance.voice
                         = this.voices[ randomFromRange(0, this.numberOfVoices - 1) ];
                     console.log(this.utterance.voice);
