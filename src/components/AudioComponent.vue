@@ -13,7 +13,9 @@ export default {
         return {
             playList: [],
             counter: 0,
-            utterance: new SpeechSynthesisUtterance(),
+            utterance: new SpeechSynthesisUtterance('Hello there!'),
+            voices: [],
+            numberOfVoices: 1,
             audio: new Audio()
         }
     },
@@ -22,11 +24,101 @@ export default {
             this.start();
         },
         variants() {
+            this.preparePlayList();
+        }
+    },
+    beforeCreate() {
+        const utterance = new SpeechSynthesisUtterance('Hello there!');
+        speechSynthesis.speak(utterance);
+        utterance.onend = () => {
+            console.log('ended!');
+            const voices = speechSynthesis.getVoices();
+            console.log(voices);
+            for(let voice of voices) {
+                if(voice.lang.match('en')) {
+                    //console.log(voice);
+                    this.voices.push(voice);
+                }
+            }
+            this.numberOfVoices = this.voices.length;
+            console.log(this.voices);
+        }
+    },
+    created() {
+        this.audio.onended = this.utterance.onend = () => {
+            console.log('It was good!');
+            //console.log(this.counter, this.variants.length);
+            if(++this.counter < this.variants.length) {
+                this.speakNext();
+            } else {
+                console.log('Finished!');
+                this.setPlayback(false);
+
+                // preloading first variant of pronunciation for next manual play
+                this.prepareFirst(); 
+            }
+        } 
+        this.audio.oncanplaythrough = () => console.log('Loaded!');
+
+        this.utterance.lang = 'en';
+        this.utterance.rate = 0.8;
+        //speechSynthesis.speak(this.utterance);
+    },
+    methods: {
+        prepareRecord(item) {
+            const url = item.getNextUrl();
+            console.log(url);
+            this.audio.src = url;
+        },
+        playRecord(item) {
+            if(this.counter > 0) this.prepareRecord(item);
+            this.audio.play();
+        },
+        prepareUtterance(text) {
+            this.utterance.text = text;
+            console.log('utter ' + text);
+        },
+        generateSpeech(text) {
+            if(this.counter > 0) this.prepareUtterance(text);
+            speechSynthesis.speak(this.utterance);
+        },
+        speakNext() {
+            const item = this.playList[this.counter];
+            //console.log(item);
+            if(item.type === 'play') {
+                this.playRecord(item);
+            } else {
+                this.generateSpeech(item.text);
+            }
+        },
+        start() {
+            this.setPlayback(true);
+            this.counter = 0;
+            this.speakNext();
+        },
+        prepareFirst() { // preloading first variant of pronunciation
+            const item = this.playList[0];
+            //console.log(item);
+            if(item.type === 'play') {
+                this.prepareRecord(item)
+            } else {
+                //console.log(this.voices);
+                //this.utterance.voice = this.voices[ 1 ];
+                if(this.numberOfVoices > 1) {
+                    console.log('chose voice');
+                    this.utterance.voice
+                        = this.voices[ randomFromRange(0, this.numberOfVoices - 1) ];
+                    console.log(this.utterance.voice);
+                }
+                this.prepareUtterance(item.text);
+            }
+        },
+        preparePlayList() {
             this.playList = [];
             for(let variant of this.variants) {
-                console.log(variant);
-                const urls = soundObject[variant.toLowerCase()];
-                console.log(urls);
+                //const urls = soundObject[variant.toLowerCase()];
+                const urls = false;
+                //console.log(urls);
                 if(urls) {
                     this.playList.push({
                         type: 'play',
@@ -44,47 +136,9 @@ export default {
                     });
                 }
             }
+            console.log('playList:');
             console.log(this.playList);
-        }
-    },
-    created() {
-        this.audio.onended = this.utterance.onend = () => {
-            console.log('It was good!');
-            //console.log(this.counter, this.variants.length);
-            if(++this.counter < this.variants.length) {
-                this.speakNext();
-            } else {
-                console.log('Finished!');
-                this.setPlayback(false);
-            }
-        } 
-        this.utterance.lang = 'en';
-        this.utterance.rate = 0.8;
-    },
-    methods: {
-        playRecord(item) {
-            const url = item.getNextUrl();
-            console.log(url);
-            this.audio.src = url;
-            this.audio.play();
-        },
-        generateSpeech(text) {
-            this.utterance.text = text;
-            speechSynthesis.speak(this.utterance);
-        },
-        speakNext() {
-            const item = this.playList[this.counter];
-            console.log(item);
-            if(item.type === 'play') {
-                this.playRecord(item);
-            } else {
-                this.generateSpeech(item.text);
-            }
-        },
-        start() {
-            this.setPlayback(true);
-            this.counter = 0;
-            this.speakNext();
+            this.prepareFirst();
         }
     }
 }

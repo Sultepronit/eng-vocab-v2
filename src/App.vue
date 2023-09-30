@@ -46,7 +46,6 @@ export default {
       this.buttons = 'SHOW';
 
       this.current = nextCard(this.sessionData);
-      console.log(this.current.word);
 
       this.word = this.current.direction === 'FORWARD'
         ? this.current.word.question : this.current.word.hint;
