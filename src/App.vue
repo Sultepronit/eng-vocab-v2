@@ -9,8 +9,10 @@ export default {
   },
   data() {
     return {
-      sessionData: {},
-      progress: 0,
+      sessionData: {
+        content: []
+      },
+      //progress: 0,
 
       current: {
         word: { variants: [] }
@@ -29,8 +31,12 @@ export default {
     }
   },
   computed: {
+    showedCards() {
+      return this.sessionData.duration - this.sessionData.content.length;
+    },
     persentage() {
-      return Math.round(this.progress / this.sessionData.duration * 100);
+      //return Math.round(this.progress / this.sessionData.duration * 100);
+      return Math.round(this.showedCards / this.sessionData.duration * 100);
     }
   },
   created() {
@@ -83,11 +89,9 @@ export default {
 <template>
   <p>
     <strong>
-      {{ progress }}/
-      {{ sessionData.duration }}: 
-      {{ persentage }}% |
+      {{ `${showedCards}/${sessionData.duration}: ${persentage}% ` }}
     </strong>
-    l:{{ sessionData.learnNumber }} |
+    | l:{{ sessionData.learnNumber }} |
     c:{{ sessionData.confirmNumber }} |
     r:{{ sessionData.repeatNumber }}
   </p>

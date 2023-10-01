@@ -4,7 +4,7 @@
 </template>
 
 <script>
-import soundObject from '@/soundObject';
+import { urlKeys, urlList } from '@/recordUrls';
 import { randomFromRange } from '@/commonFunctions';
 
 export default {
@@ -14,10 +14,13 @@ export default {
         return {
             playList: [],
             counter: 0,
+
             utterance: new SpeechSynthesisUtterance('Hello there!'),
             voices: [],
             numberOfVoices: 0,
-            audio: new Audio()
+
+            audio: new Audio(),
+            //urlKeys: {}
         }
     },
     watch: {
@@ -112,17 +115,18 @@ export default {
         preparePlayList() {
             this.playList = [];
             for(let variant of this.variants) {
-                //const urls = soundObject[variant.toLowerCase()];
-                const urls = false;
-                //console.log(urls);
-                if(urls) {
+                const shortUrls = urlList[variant.toLowerCase()];
+                if(shortUrls) {
                     this.playList.push({
                         type: 'play',
-                        urls,
-                        index: randomFromRange(0, urls.length - 1),
+                        shortUrls,
+                        index: randomFromRange(0, shortUrls.length - 1),
                         getNextUrl() {
-                            this.index = (this.index + 1) < this.urls.length ? this.index + 1 : 0;
-                            return this.urls[this.index];
+                            this.index = ((this.index + 1) < this.shortUrls.length)
+                                ? this.index + 1 : 0;
+                            const urlParts = this.shortUrls[this.index].split('*');
+                            const urlKey = urlKeys[urlParts[0]];
+                            return urlKey + urlParts[1];
                         }
                     });
                 } else {
