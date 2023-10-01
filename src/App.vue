@@ -2,6 +2,8 @@
 import AudioComponent from './components/AudioComponent.vue';
 import startSession from '@/startSession';
 import nextCard from '@/nextCard';
+import evaluate from '@/evaluate';
+
 export default {
   name: 'App',
   components: {
@@ -9,49 +11,67 @@ export default {
   },
   data() {
     return {
-      sessionData: {
+      session: {
         content: []
       },
-      //progress: 0,
-
-      current: {
-        word: { variants: [] }
+      
+      progress: {
+        learn: {
+          plus: 0,
+          minus: 0,
+          upgraded: 0
+        },
+        confirm: {
+          plus: 0,
+          minus: 0,
+          upgraded: 0,
+          degraded: 0
+        },
+        repeat: {
+          plus: 0,
+          minus: 0,
+          upgraded: 0,
+          degraded: 0
+        }
       },
 
-      stage: 'QUESTION',
+      current: {
+        word: { variants: [] },
+        card: { s: 0 }
+      },
+
+      //stage: 'QUESTION',
+      playback: false,
+      changeToPlay: 0,
 
       word: 'word',
       transc: 'transcription',
       transl: 'translation',
-
-      buttons: 'SHOW',
-
-      playback: false,
-      changeToPlay: 0
+      example: 'example',
+      buttons: 'SHOW'
     }
   },
   computed: {
     showedCards() {
-      return this.sessionData.duration - this.sessionData.content.length;
+      return this.session.duration - this.session.content.length;
     },
     persentage() {
-      //return Math.round(this.progress / this.sessionData.duration * 100);
-      return Math.round(this.showedCards / this.sessionData.duration * 100);
+      return Math.round(this.showedCards / this.session.duration * 100);
     }
   },
   created() {
     console.timeLog('tt', 'created!');
     startSession().then(data => {
-      this.sessionData = data;
+      this.session = data;
       this.showNext();
     });
   },
   methods: {
     showNext() {
-      this.stage = 'QUESTION';
+      //this.stage = 'QUESTION';
       this.buttons = 'SHOW';
 
-      this.current = nextCard(this.sessionData);
+      this.current = nextCard(this.session);
 
       this.word = this.current.direction === 'FORWARD'
         ? this.current.word.question : this.current.word.hint;
@@ -60,23 +80,34 @@ export default {
 
       this.transl = this.current.direction === 'BACKWARD'
         ? this.current.card.transl : '';
+
+      this.example = '';
     },
     showAnswer() {
-      this.stage = 'EVALUATION';
+      //this.stage = 'EVALUATION';
       this.buttons = 'EVALUATE';
 
       this.changeToPlay++;
 
       this.transc = this.current.card.transc;
-
       this.word = this.current.word.answer;
-
       if(this.current.direction === 'FORWARD') {
         this.transl = this.current.card.transl;
       } 
+      this.example = this.current.card.example;
     },
-    evaluateAndSave() {
+    evaluateAndSave(mark) {
+      console.log(mark);
+      //console.log(this.current.cardType);
+      console.log(this.current);
+      console.log(this.session);
 
+      const type = this.current.cardType.toLowerCase();
+      evaluate[type](mark, this.progress[type], this.current, this.session);
+
+      console.log(this.current.card);
+
+      this.showNext();
     },
     changePlaybackStatus(change) {
         this.playback = change;
@@ -87,13 +118,27 @@ export default {
 </script>
 
 <template>
-  <p>
+  <p class="progress">
     <strong>
-      {{ `${showedCards}/${sessionData.duration}: ${persentage}% ` }}
+      {{ `${showedCards}/${session.duration}: ${persentage}% ` }}
     </strong>
-    | l:{{ sessionData.learnNumber }} |
-    c:{{ sessionData.confirmNumber }} |
-    r:{{ sessionData.repeatNumber }}
+    |
+    l:{{ session.learnNumber }}
+    {{ `${progress.learn.plus}-${progress.learn.minus}` }}
+    <strong>{{ progress.learn.upgraded }}</strong>
+    |
+    c:{{ session.confirmNumber }} 
+    {{ `${progress.confirm.plus}-${progress.confirm.minus}` }}
+    <strong>{{ `${progress.confirm.upgraded}-${progress.confirm.degraded}` }}</strong>
+    |
+    r:{{ session.repeatNumber }}
+    {{ `${progress.repeat.plus}-${progress.repeat.minus}` }}
+    <strong>{{ `${progress.repeat.upgraded}-${progress.repeat.degraded}` }}</strong>
+  </p>
+
+  <p class="card">
+    {{ `${this.current.cardId} [${this.current.card.s}]:` }}
+    {{ `${this.current.card.f} ${this.current.card.b}` }}
   </p>
 
   <audio-component
@@ -102,12 +147,11 @@ export default {
     :set-playback="changePlaybackStatus"
     :trigger="changeToPlay"
   />
-  <p
-    class="word"
-    v-html="word"
-  />
+  <p class="word" v-html="word" />
   <p class="transc">{{ transc }}</p>
   <p class="transl">{{ transl }}</p>
+  <p class="example" v-html="example" />
+
 
   <button
     v-show="buttons==='SHOW'"
@@ -116,9 +160,9 @@ export default {
     show
   </button>
   <section v-show="buttons==='EVALUATE' && !playback">
-    <button @click="showNext">plus</button>
-    <button>neutral</button>
-    <button>minus</button>
+    <button @click="evaluateAndSave('GOOD')">plus</button>
+    <button @click="evaluateAndSave('NEUTRAL')">neutral</button>
+    <button @click="evaluateAndSave('BAD')">minus</button>
   </section>
 </template>
 

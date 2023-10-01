@@ -15,7 +15,7 @@ export default {
             playList: [],
             counter: 0,
 
-            utterance: new SpeechSynthesisUtterance('Hello there!'),
+            utterance: new SpeechSynthesisUtterance(),
             voices: [],
             numberOfVoices: 0,
 

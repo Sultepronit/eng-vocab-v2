@@ -3,6 +3,7 @@ import { getData } from '@/api.js';
 function prepareSession(data) {
     const session = {
         cards: data.parsedDb,
+        nextRepeated: data.nextRepeated,
         repeatNumber: data.repeatNumber,
         learnList: [],
         confirmList: [],
@@ -72,7 +73,7 @@ function parseDb(dataSheet) {
             word: e[6],
             transc: e[7],
             transl: e[8],
-            e: e[9]
+            example: e[9]
         };
         //console.log(obj);
         result.parsedDb.push(obj);
