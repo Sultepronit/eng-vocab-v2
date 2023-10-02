@@ -1,6 +1,9 @@
 <template>
   <button @click="start">speak!</button>
   <span>{{ numberOfVoices }}</span>
+  <select>
+    <option v-for="v in voices" value="">{{ v.name }}</option>
+  </select>
 </template>
 
 <script>
