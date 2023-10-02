@@ -154,17 +154,22 @@ export default {
     :set-playback="changePlaybackStatus"
     :trigger="changeToPlay"
   />
-  <p class="word" v-html="word" />
-  <p class="transc">{{ transc }}</p>
-  <p class="transl">{{ transl }}</p>
-  <p class="example" v-html="example" />
+
+  <main>
+    <p class="word" v-html="word" />
+    <p class="transc">{{ transc }}</p>
+    <p class="transl">{{ transl }}</p>
+    <p class="example" v-html="example" />
+  </main>
 
   <button class="reset" @click="reset">reset!</button>
-  <button v-show="buttons==='SHOW'" @click="showAnswer">show</button>
-  <section v-show="buttons==='EVALUATE' && !playback">
-    <button @click="evaluateAndSave('GOOD')">plus</button>
-    <button @click="evaluateAndSave('NEUTRAL')">neutral</button>
-    <button @click="evaluateAndSave('BAD')">minus</button>
+  <section class="navig">
+    <button class="show" v-show="buttons==='SHOW'" @click="showAnswer" />
+    <section class="eval" v-show="buttons==='EVALUATE' && !playback">
+      <button class="good" @click="evaluateAndSave('GOOD')" />
+      <button @click="evaluateAndSave('NEUTRAL')"></button>
+      <button class="bad" @click="evaluateAndSave('BAD')" /> 
+    </section>
   </section>
 </template>
 
