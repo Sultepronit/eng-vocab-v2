@@ -29,7 +29,7 @@ function learn(mark, progress, current, session) {
     }
 }
 
-function confirmAndRepeat(mark, progress, current, upgradeStatus) {
+function confirmAndRepeat(mark, progress, current, newStatus) {
     if(mark === 'GOOD') {
         progress.plus++;
     } else if(mark === 'BAD') {
@@ -45,13 +45,13 @@ function confirmAndRepeat(mark, progress, current, upgradeStatus) {
 
     if(current.card.f > 0 && current.card.b > 0) {
         progress.upgraded++;
-        current.card.s = upgradeStatus;
+        current.card.s = newStatus();
         current.card.f = 0;
         current.card.b = 0;
         return;
     }
 
-    if(current.card.f < -1 && current.card.b < -1) {
+    if(current.card.f < -1 || current.card.b < -1) {
         progress.degraded++;
         current.card.s = 0;
         current.card.f = 0;
@@ -60,12 +60,14 @@ function confirmAndRepeat(mark, progress, current, upgradeStatus) {
 }
 
 function confirm(mark, progress, current) {
-    confirmAndRepeat(mark, progress, current, 2);
+    confirmAndRepeat(mark, progress, current, () => 2);
 }
 
 function repeat(mark, progress, current, session) {
-    confirmAndRepeat(mark, progress, current, session.nextRepeated++);
-    updateNextRepeated(session.nextRepeated);
+    confirmAndRepeat(mark, progress, current, () => {
+        updateNextRepeated(session.nextRepeated + 1);
+        return session.nextRepeated++;
+    });
 }
 
 export default { learn, confirm, repeat };

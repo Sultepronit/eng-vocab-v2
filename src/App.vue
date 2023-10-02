@@ -4,6 +4,7 @@ import startSession from '@/startSession';
 import nextCard from '@/nextCard';
 import evaluate from '@/evaluate';
 import { updateCard } from './updateDB';
+import { saveSession, restoreSession } from '@/useLocalStorage';
 
 export default {
   name: 'App',
@@ -62,10 +63,20 @@ export default {
   },
   created() {
     console.timeLog('tt', 'created!');
-    startSession().then(data => {
-      this.session = data;
+
+    const restored = restoreSession();
+    if(restored) {
+      this.session = restored.session;
+      this.progress = restored.progress;
       this.showNext();
-    });
+      console.timeLog('tt', 'ready to go!');
+    } else {
+      startSession().then(data => {
+        this.session = data;
+        this.showNext();
+        console.timeLog('tt', 'ready to go!');
+      });
+    }
   },
   methods: {
     showNext() {
@@ -100,7 +111,7 @@ export default {
     evaluateAndSave(mark) {
       console.log(mark);
       console.log(this.current);
-      console.log(this.session);
+      //console.log(this.session);
 
       const type = this.current.cardType.toLowerCase();
       evaluate[type](mark, this.progress[type], this.current, this.session);
@@ -108,7 +119,15 @@ export default {
       console.log(this.current.card);
 
       updateCard(this.current.cardId, this.current.card);
-      this.showNext();
+
+      saveSession({ session: this.session, progress: this.progress });
+
+      if(this.session.content.length < 1) {
+        this.word = 'Happy End!';
+        this.buttons = 'END';
+      } else {
+        this.showNext();
+      }
     },
 
     changePlaybackStatus(change) {
@@ -167,7 +186,7 @@ export default {
     <button class="show" v-show="buttons==='SHOW'" @click="showAnswer" />
     <section class="eval" v-show="buttons==='EVALUATE' && !playback">
       <button class="good" @click="evaluateAndSave('GOOD')" />
-      <button @click="evaluateAndSave('NEUTRAL')"></button>
+      <button @click="evaluateAndSave('NEUTRAL')" />
       <button class="bad" @click="evaluateAndSave('BAD')" /> 
     </section>
   </section>

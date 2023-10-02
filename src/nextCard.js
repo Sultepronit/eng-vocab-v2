@@ -17,7 +17,6 @@ function splitWordVariants(chunk) {
 	let answer = '';
 	for(let i = 0; i < variants.length; i++) {
 		if(i === index) answer += '<u>';
-        //if(labels[i][0] === '*') answer += labels[i] + ' ';
 		answer += variants[i];
         if(i === index) answer += '</u>';
         if(labels[i][0] === '*') answer += `<sup>${labels[i]}</sup>`;
@@ -27,16 +26,18 @@ function splitWordVariants(chunk) {
     return { variants, question: variants[index], hint, answer };
 }
 
-function nextCard({ cards, content, learnList, confirmList, repeatList }) {
+//function nextCard({ cards, content, learnList, confirmList, repeatList }) {
+function nextCard(session) {
+    const { cards, content, learnList, confirmList, repeatList } = session;
     const cardType = pullRandomFromArray(content);
     console.log(cardType);
     console.log(content);
 
     const cardId = cardType === 'LEARN' ? pullRandomFromArray(learnList)
-        : cardType === 'CONFRIM' ? pullRandomFromArray(confirmList)
+        : cardType === 'CONFIRM' ? pullRandomFromArray(confirmList)
             : pullRandomFromArray(repeatList);
 
-    console.log(cardId);
+    //console.log(cardId);
     const card = cards[cardId];
     //const currentCard = cards[23];
     //const currentCard = cards[380];
