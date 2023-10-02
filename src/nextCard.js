@@ -37,17 +37,17 @@ function nextCard({ cards, content, learnList, confirmList, repeatList }) {
             : pullRandomFromArray(repeatList);
 
     console.log(cardId);
-    const currentCard = cards[cardId];
+    const card = cards[cardId];
     //const currentCard = cards[23];
     //const currentCard = cards[380];
-    console.log(currentCard);
+    //console.log(card);
 
-    const direction = (currentCard.f > currentCard.b) ? "BACKWARD" : "FORWARD";
+    const direction = (card.f > card.b) ? "BACKWARD" : "FORWARD";
 
-    const word = splitWordVariants(currentCard.word);
-    console.log(word);
+    const word = splitWordVariants(card.word);
+    //console.log(word);
 
-    return { cardType, cardId, card: currentCard, direction, word };
+    return { cardType, cardId, card, direction, word };
 }
 
 export default nextCard;

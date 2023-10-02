@@ -3,6 +3,7 @@ import AudioComponent from './components/AudioComponent.vue';
 import startSession from '@/startSession';
 import nextCard from '@/nextCard';
 import evaluate from '@/evaluate';
+import { updateCard } from './updateDB';
 
 export default {
   name: 'App',
@@ -98,7 +99,6 @@ export default {
     },
     evaluateAndSave(mark) {
       console.log(mark);
-      //console.log(this.current.cardType);
       console.log(this.current);
       console.log(this.session);
 
@@ -107,11 +107,18 @@ export default {
 
       console.log(this.current.card);
 
+      updateCard(this.current.cardId, this.current.card);
       this.showNext();
     },
+
     changePlaybackStatus(change) {
         this.playback = change;
     },
+
+    reset() {
+      localStorage.clear();
+      location.reload();
+    }
   }
 }
   
@@ -152,13 +159,8 @@ export default {
   <p class="transl">{{ transl }}</p>
   <p class="example" v-html="example" />
 
-
-  <button
-    v-show="buttons==='SHOW'"
-    @click="showAnswer"
-  >
-    show
-  </button>
+  <button class="reset" @click="reset">reset!</button>
+  <button v-show="buttons==='SHOW'" @click="showAnswer">show</button>
   <section v-show="buttons==='EVALUATE' && !playback">
     <button @click="evaluateAndSave('GOOD')">plus</button>
     <button @click="evaluateAndSave('NEUTRAL')">neutral</button>

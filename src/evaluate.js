@@ -1,3 +1,5 @@
+import { updateNextRepeated } from '@/updateDB';
+
 function learn(mark, progress, current, session) {
     if(mark === 'GOOD') {
         progress.plus++;
@@ -63,6 +65,7 @@ function confirm(mark, progress, current) {
 
 function repeat(mark, progress, current, session) {
     confirmAndRepeat(mark, progress, current, session.nextRepeated++);
+    updateNextRepeated(session.nextRepeated);
 }
 
 export default { learn, confirm, repeat };
