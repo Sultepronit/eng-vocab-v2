@@ -154,30 +154,32 @@ export default {
 </script>
 
 <template>
-  <p class="progress">
-    <strong>
-      {{ `${showedCards}/${session.duration}: ${persentage}% ` }}
-    </strong>
-    |
-    l:{{ session.learnNumber }}
-    {{ `${progress.learn.plus}-${progress.learn.minus}` }}
-    <strong>{{ progress.learn.upgraded }}</strong>
-    |
-    c:{{ session.confirmNumber }} 
-    {{ `${progress.confirm.plus}-${progress.confirm.minus}` }}
-    <strong>{{ `${progress.confirm.upgraded}-${progress.confirm.degraded}` }}</strong>
-    |
-    r:{{ session.repeatNumber }}
-    {{ `${progress.repeat.plus}-${progress.repeat.minus}` }}
-    <strong>{{ `${progress.repeat.upgraded}-${progress.repeat.degraded}` }}</strong>
-  </p>
+  <header>
+    <p class="progress">
+      <strong>
+        {{ `${showedCards}/${session.duration}: ${persentage}% ` }}
+      </strong>
+      |
+      l:{{ session.learnNumber }}
+      {{ `${progress.learn.plus}-${progress.learn.minus}` }}
+      <strong>{{ progress.learn.upgraded }}</strong>
+      |
+      c:{{ session.confirmNumber }} 
+      {{ `${progress.confirm.plus}-${progress.confirm.minus}` }}
+      <strong>{{ `${progress.confirm.upgraded}-${progress.confirm.degraded}` }}</strong>
+      |
+      r:{{ session.repeatNumber }}
+      {{ `${progress.repeat.plus}-${progress.repeat.minus}` }}
+      <strong>{{ `${progress.repeat.upgraded}-${progress.repeat.degraded}` }}</strong>
+    </p>
 
-  <p class="card">
-    {{ `${this.current.cardId} [${this.current.card.s}]:` }}
-    {{ `${this.current.card.f} ${this.current.card.b}` }}
-  </p>
+    <p class="card">
+      {{ `${this.current.cardId} [${this.current.card.s}]:` }}
+      {{ `${this.current.card.f} ${this.current.card.b}` }}
+    </p>
 
-  <p class="playButton" @click="play">🔈</p>
+    <p class="playButton" @click="play">🔈</p>
+  </header>
 
   <main>
     <p class="word" v-html="word" />
