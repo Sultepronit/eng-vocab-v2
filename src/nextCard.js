@@ -40,13 +40,13 @@ function nextCard(session) {
     //console.log(cardId);
     const card = cards[cardId];
     //const currentCard = cards[23];
-    //const currentCard = cards[380];
+    //const card = cards[380];
     //console.log(card);
 
     const direction = (card.f > card.b) ? "BACKWARD" : "FORWARD";
 
     const word = splitWordVariants(card.word);
-    console.log(word);
+    //console.log(word);
 
     return { cardType, cardId, card, direction, word };
 }

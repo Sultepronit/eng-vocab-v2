@@ -1,17 +1,13 @@
 <script>
-import AudioComponent from './components/AudioComponent.vue';
-import { preparePlaylist } from './pronunciation';
 import startSession from '@/startSession';
 import nextCard from '@/nextCard';
 import evaluate from '@/evaluate';
 import { updateCard } from './updateDB';
 import { saveSession, restoreSession } from '@/useLocalStorage';
+import { preparePlaylist, startSpeaking } from './pronunciation';
 
 export default {
   name: 'App',
-  components: {
-    AudioComponent
-  },
   data() {
     return {
       session: {
@@ -43,8 +39,7 @@ export default {
         card: { s: 0 }
       },
 
-      playback: false,
-      changeToPlay: 0,
+      playback: { on: false },
 
       word: 'word',
       transc: 'transcription',
@@ -71,11 +66,13 @@ export default {
       this.session = restored.session;
       this.progress = restored.progress;
       this.enableReset = true;
+      console.timeLog('tt', 'now we\'ll get the first card...');
       this.showNext();
       console.timeLog('tt', 'ready to go!');
     } else {
       startSession().then(data => {
         this.session = data;
+        console.timeLog('tt', 'now we\'ll get the first card...');
         this.showNext();
         console.timeLog('tt', 'ready to go!');
       });
@@ -85,9 +82,10 @@ export default {
     showNext() {
       this.buttons = 'SHOW';
 
-      preparePlaylist(this.current.word.variants);
+      saveSession({ session: this.session, progress: this.progress });
 
       this.current = nextCard(this.session);
+      preparePlaylist(this.current.word.variants);
 
       this.word = this.current.direction === 'FORWARD'
         ? this.current.word.question : this.current.word.hint;
@@ -99,10 +97,16 @@ export default {
 
       this.example = '';
     },
+
+    play() {
+      this.playback.on = true;
+      startSpeaking(this.playback);
+    },
+
     showAnswer() {
       this.buttons = 'EVALUATE';
 
-      //this.changeToPlay++;
+      this.play();
 
       this.transc = this.current.card.transc;
       this.word = this.current.word.answer;
@@ -113,6 +117,7 @@ export default {
 
       this.enableReset = false;
     },
+
     evaluateAndSave(mark) {
       console.log(mark);
       console.log(this.current);
@@ -125,7 +130,7 @@ export default {
 
       updateCard(this.current.cardId, this.current.card);
 
-      saveSession({ session: this.session, progress: this.progress });
+      //saveSession({ session: this.session, progress: this.progress });
 
       if(this.session.content.length < 1) {
         this.word = 'Happy End!';
@@ -133,10 +138,6 @@ export default {
       } else {
         this.showNext();
       }
-    },
-
-    changePlaybackStatus(change) {
-        this.playback = change;
     },
 
     reset() {
@@ -172,12 +173,7 @@ export default {
     {{ `${this.current.card.f} ${this.current.card.b}` }}
   </p>
 
-  <audio-component
-    :variants="current.word.variants"
-    :playback="playback"
-    :set-playback="changePlaybackStatus"
-    :trigger="changeToPlay"
-  />
+  <p class="playButton" @click="play">🔈</p>
 
   <main>
     <p class="word" v-html="word" />
@@ -189,7 +185,7 @@ export default {
   <p class="reset" @click="reset" v-if="enableReset">↻</p>
   <section class="navig">
     <button class="show" v-show="buttons==='SHOW'" @click="showAnswer" />
-    <section class="eval" v-show="buttons==='EVALUATE' && !playback">
+    <section class="eval" v-show="buttons==='EVALUATE' && !playback.on">
       <button class="good" @click="evaluateAndSave('GOOD')" />
       <button @click="evaluateAndSave('NEUTRAL')" />
       <button class="bad" @click="evaluateAndSave('BAD')" /> 
