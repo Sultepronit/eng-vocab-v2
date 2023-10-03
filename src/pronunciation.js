@@ -1,10 +1,28 @@
-import { urlKeys, urlList } from '@/recordUrls';
+//import urlList from '../public/recordUrls.json';
+//import { urlKeys, urlList } from '@/recordUrls';
+//import { urlKeys } from '@/recordUrls';
+import fetchAudioUrls from './fetchAudioUrls';
 import { randomFromRange } from '@/commonFunctions';
 import { generateSpeech } from './speechSynth';
+
+
 
 const audio = new Audio();
 const playlist = [];
 let counter = 0;
+
+const urlKeys = {
+	"a": "https://s3.amazonaws.com/audio.vocabulary.com/1.0/us/",
+	"cb": "https://dictionary.cambridge.org/us/media/english/uk_pron/",
+	"ca": "https://dictionary.cambridge.org/us/media/english/us_pron/",
+	"oa": "https://www.onelook.com/pronounce/macmillan/US/",
+	"ob": "https://www.onelook.com/pronounce/macmillan/UK/"
+};
+
+let urlList = {};
+fetchAudioUrls().then(result => urlList = result);
+
+console.log(urlList);
 
 let playback = {};
 function endedSpeaking() {
