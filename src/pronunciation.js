@@ -1,11 +1,6 @@
-//import urlList from '../public/recordUrls.json';
-//import { urlKeys, urlList } from '@/recordUrls';
-//import { urlKeys } from '@/recordUrls';
 import fetchAudioUrls from './fetchAudioUrls';
 import { randomFromRange } from '@/commonFunctions';
 import { generateSpeech } from './speechSynth';
-
-
 
 const audio = new Audio();
 const playlist = [];
@@ -19,10 +14,16 @@ const urlKeys = {
 	"ob": "https://www.onelook.com/pronounce/macmillan/UK/"
 };
 
-let urlList = {};
-fetchAudioUrls().then(result => urlList = result);
+let waitingVariants = null;
+let playbackIsWaiting = false;
+let urlList = null;
 
-console.log(urlList);
+fetchAudioUrls().then(result => {
+    urlList = result;
+    console.timeLog('tt', 'audio urls loaded!');
+    if(waitingVariants) preparePlaylist(waitingVariants);
+    if(playbackIsWaiting) speakNext();
+});
 
 let playback = {};
 function endedSpeaking() {
@@ -41,7 +42,6 @@ console.log('the audio is created!');
 
 function prepareRecord(item) {
     const url = item.getNextUrl();
-    //console.log(url);
     audio.src = url;
 }
 
@@ -53,7 +53,6 @@ function playRecord(item) {
 
 function speakNext() {
     const item = playlist[counter];
-    //console.log(item);
     if(item.type === 'play') {
         playRecord(item);
     } else {
@@ -65,18 +64,32 @@ function speakNext() {
 function startSpeaking(pi) {
     playback = pi;
     counter = 0;
+
+    if(!urlList) {
+        playbackIsWaiting = true;
+        console.log('wating for url list!');
+        return;
+    }
+
     speakNext();
 }
 
 function prepareFirst() { // preloading first variant of pronunciation
     const item = playlist[0];
-    //console.log(item);
-    if(item.type === 'play') {
-        prepareRecord(item);
+    if(item.type === 'play') prepareRecord(item);
+
+    if(playbackIsWaiting) {
+        playbackIsWaiting = false;
+        speakNext();
     }
 }
 
 function preparePlaylist(variants) {
+    if(!urlList) {
+        waitingVariants = variants;
+        return;
+    }
+
     playlist.length = 0;
 
     for(const variant of variants) {
