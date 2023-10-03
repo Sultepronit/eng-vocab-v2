@@ -5,7 +5,7 @@
 }
 
 :root {
-    --BUTTON-ZISE: 5rem;
+    --BUTTON-ZISE: 6rem;
 }
 
 /* html {
@@ -17,7 +17,7 @@ main {
 }
 
 .word {
-    font-size: 2rem;
+    font-size: 2.2rem;
 }
 
 .transc {

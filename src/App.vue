@@ -134,7 +134,11 @@ export default {
 
       if(this.session.content.length < 1) {
         this.word = 'Happy End!';
+        this.transc = '';
+        this.transl = '';
+        this.example = '';
         this.buttons = 'END';
+        localStorage.clear();
       } else {
         this.showNext();
       }

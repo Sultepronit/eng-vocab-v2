@@ -7,4 +7,5 @@ import App from './App.vue';
 
 createApp(App).mount('#app');
 
-
+import urls from '../public/recordUrls.json';
+console.log(urls['apple']);
