@@ -46,7 +46,7 @@ function nextCard(session) {
     const direction = (card.f > card.b) ? "BACKWARD" : "FORWARD";
 
     const word = splitWordVariants(card.word);
-    //console.log(word);
+    console.log(word);
 
     return { cardType, cardId, card, direction, word };
 }

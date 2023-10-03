@@ -1,5 +1,6 @@
 <script>
 import AudioComponent from './components/AudioComponent.vue';
+import { preparePlaylist } from './pronunciation';
 import startSession from '@/startSession';
 import nextCard from '@/nextCard';
 import evaluate from '@/evaluate';
@@ -42,7 +43,6 @@ export default {
         card: { s: 0 }
       },
 
-      //stage: 'QUESTION',
       playback: false,
       changeToPlay: 0,
 
@@ -50,7 +50,9 @@ export default {
       transc: 'transcription',
       transl: 'translation',
       example: 'example',
-      buttons: 'SHOW'
+      buttons: 'SHOW',
+
+      enableReset: false
     }
   },
   computed: {
@@ -68,6 +70,7 @@ export default {
     if(restored) {
       this.session = restored.session;
       this.progress = restored.progress;
+      this.enableReset = true;
       this.showNext();
       console.timeLog('tt', 'ready to go!');
     } else {
@@ -80,8 +83,9 @@ export default {
   },
   methods: {
     showNext() {
-      //this.stage = 'QUESTION';
       this.buttons = 'SHOW';
+
+      preparePlaylist(this.current.word.variants);
 
       this.current = nextCard(this.session);
 
@@ -96,10 +100,9 @@ export default {
       this.example = '';
     },
     showAnswer() {
-      //this.stage = 'EVALUATION';
       this.buttons = 'EVALUATE';
 
-      this.changeToPlay++;
+      //this.changeToPlay++;
 
       this.transc = this.current.card.transc;
       this.word = this.current.word.answer;
@@ -107,6 +110,8 @@ export default {
         this.transl = this.current.card.transl;
       } 
       this.example = this.current.card.example;
+
+      this.enableReset = false;
     },
     evaluateAndSave(mark) {
       console.log(mark);
@@ -181,7 +186,7 @@ export default {
     <p class="example" v-html="example" />
   </main>
 
-  <button class="reset" @click="reset">reset!</button>
+  <p class="reset" @click="reset" v-if="enableReset">↻</p>
   <section class="navig">
     <button class="show" v-show="buttons==='SHOW'" @click="showAnswer" />
     <section class="eval" v-show="buttons==='EVALUATE' && !playback">

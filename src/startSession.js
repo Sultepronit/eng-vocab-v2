@@ -97,9 +97,6 @@ async function startSession() {
     console.log(session);
     console.timeLog('tt', 'prepared session!');
 
-    localStorage.setItem('session', JSON.stringify(session));
-    console.timeLog('tt', 'saved to localStorage!');
-
     return new Promise(res => res(session));
 }
 

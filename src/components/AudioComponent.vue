@@ -31,6 +31,7 @@ export default {
             this.start();
         },
         variants() {
+            console.log('Current has changed (audio)!');
             this.preparePlayList();
         }
     },
