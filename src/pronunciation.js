@@ -4,7 +4,8 @@ import { generateSpeech } from './speechSynth';
 
 const audio = new Audio();
 const playlist = [];
-let counter = 0;
+let versionCounter = 0;
+let errorCounter = 0;
 
 const urlKeys = {
 	"a": "https://s3.amazonaws.com/audio.vocabulary.com/1.0/us/",
@@ -27,16 +28,26 @@ fetchAudioUrls().then(result => {
 
 let playback = {};
 function endedSpeaking() {
-    if(++counter < playlist.length) {
+    errorCounter = 0;
+    if(++versionCounter < playlist.length) {
         speakNext();
-        //console.log('Ended speaking one!');
     } else {
         playback.on = false;
-        prepareFirst();
-        if(counter > 1) console.log('Ended all the speech!');
+        prepareFirst(); // preloading first variant of pronunciation for repeat
+        if(versionCounter > 1) console.log('Ended all the speech!');
     }
 }
+
 audio.onended = endedSpeaking;
+
+audio.onerror = () => {
+    if(errorCounter++ > 2) {
+        console.log('no good source - will be generated');
+        playlist[versionCounter].type = 'generate';
+        return;
+    }
+    prepareRecord(playlist[versionCounter]);
+}
 
 console.log('the audio is created!');
 
@@ -46,13 +57,13 @@ function prepareRecord(item) {
 }
 
 function playRecord(item) {
-    if(counter > 0) prepareRecord(item);
+    if(versionCounter > 0) prepareRecord(item);
     audio.play();
     console.log(audio.src);
 }
 
 function speakNext() {
-    const item = playlist[counter];
+    const item = playlist[versionCounter];
     if(item.type === 'play') {
         playRecord(item);
     } else {
@@ -63,7 +74,7 @@ function speakNext() {
 
 function startSpeaking(pi) {
     playback = pi;
-    counter = 0;
+    versionCounter = 0;
 
     if(!urlList) {
         playbackIsWaiting = true;
@@ -76,6 +87,7 @@ function startSpeaking(pi) {
 
 function prepareFirst() { // preloading first variant of pronunciation
     const item = playlist[0];
+    versionCounter = 0;
     if(item.type === 'play') prepareRecord(item);
 
     if(playbackIsWaiting) {
@@ -98,6 +110,7 @@ function preparePlaylist(variants) {
         if(shortUrls) {
             playlist.push({
                 type: 'play',
+                text: variant,
                 shortUrls,
                 index: randomFromRange(0, shortUrls.length - 1),
                 getNextUrl() {

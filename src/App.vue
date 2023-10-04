@@ -182,9 +182,9 @@ export default {
   </header>
 
   <main>
-    <p class="word" v-html="word" />
+    <p class="word" v-html="word" @click="play" />
     <p class="transc">{{ transc }}</p>
-    <p class="transl">{{ transl }}</p>
+    <p class="transl" v-html="transl" />
     <p class="example" v-html="example" />
   </main>
 
