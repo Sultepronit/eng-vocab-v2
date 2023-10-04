@@ -41,7 +41,7 @@ function prepareSession(data) {
     console.log("repeat: " + session.repeatNumber);
 	session.confirmNumber = Math.round(session.confirmList.length / data.confirmDivider);
 	console.log("confirm: " + session.confirmNumber);
-	session.learnNumber = session.learnList.length - 2;
+	session.learnNumber = session.learnList.length - 1;
 	console.log("learn: " + session.learnNumber);
 
     for(let i = 0; i < session.repeatNumber; i++) session.content.push("REPEAT");
@@ -85,7 +85,6 @@ function parseDb(dataSheet) {
     return result;
 }
 
-//async function fetchDB() {
 async function startSession() {
     const dataSheet = await getData('db', 'A', 'L');
     console.timeLog('tt', 'received data!');
@@ -99,18 +98,5 @@ async function startSession() {
 
     return new Promise(res => res(session));
 }
-
-/* async function startSession() {
-    const restoredSessionJson = localStorage.getItem('session');
-    if(restoredSessionJson) {
-        const restoredSession = JSON.parse(restoredSessionJson);
-        console.log(restoredSession);
-        console.timeLog('tt', 'restored session!');
-        return new Promise(res => res(restoredSession));
-    } else {
-        return fetchDB();
-    }
-    //return fetchDB();
-} */
 
 export default startSession;
