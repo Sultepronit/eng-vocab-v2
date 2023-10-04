@@ -156,10 +156,6 @@ export default {
 <template>
   <header>
     <p class="progress">
-      <strong>
-        {{ `${showedCards}/${session.duration}: ${persentage}% ` }}
-      </strong>
-      |
       l:{{ session.learnNumber }}
       {{ `${progress.learn.plus}-${progress.learn.minus}` }}
       <strong>{{ progress.learn.upgraded }}</strong>
@@ -173,10 +169,16 @@ export default {
       <strong>{{ `${progress.repeat.upgraded}-${progress.repeat.degraded}` }}</strong>
     </p>
 
-    <p class="card">
-      {{ `${this.current.cardId} [${this.current.card.s}]:` }}
-      {{ `${this.current.card.f} ${this.current.card.b}` }}
-    </p>
+    <div class="second-line">
+      <p class="persentage">
+          {{ `${showedCards}/${session.duration}: ${persentage}% ` }}
+      </p>
+
+      <p class="card">
+        {{ `${this.current.cardId} [${this.current.card.s}]:` }}
+        {{ `${this.current.card.f} ${this.current.card.b}` }}
+      </p>
+    </div>
 
     <p class="playButton" @click="play">🔈</p>
   </header>
@@ -193,7 +195,7 @@ export default {
     <button class="show" v-show="buttons==='SHOW'" @click="showAnswer" />
     <section class="eval" v-show="buttons==='EVALUATE' && !playback.on">
       <button class="good" @click="evaluateAndSave('GOOD')" />
-      <button @click="evaluateAndSave('NEUTRAL')" />
+      <button class="neutral" @click="evaluateAndSave('NEUTRAL')" />
       <button class="bad" @click="evaluateAndSave('BAD')" /> 
     </section>
   </section>

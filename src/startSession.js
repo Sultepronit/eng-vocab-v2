@@ -79,7 +79,7 @@ function parseDb(dataSheet) {
         //console.log(obj);
         result.parsedDb.push(obj);
     }
-    console.log(result.parsedDb);
+    //console.log(result.parsedDb);
     console.log(result.parsedDb.length);
 
     return result;
