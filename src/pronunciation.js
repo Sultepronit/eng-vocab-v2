@@ -7,6 +7,7 @@ const playlist = [];
 let versionCounter = 0;
 let errorCounter = 0;
 
+let urlList = null;
 const urlKeys = {
 	"a": "https://s3.amazonaws.com/audio.vocabulary.com/1.0/us/",
 	"cb": "https://dictionary.cambridge.org/us/media/english/uk_pron/",
@@ -15,25 +16,9 @@ const urlKeys = {
 	"ob": "https://www.onelook.com/pronounce/macmillan/UK/"
 };
 
-let waitingVariants = null;
-let playbackIsWaiting = false;
-let urlList = null;
-
-/* fetchAudioUrls().then(result => {
-    urlList = result;
-    console.timeLog('tt', 'audio urls loaded!');
-    if(waitingVariants) preparePlaylist(waitingVariants);
-    if(playbackIsWaiting) speakNext();
-}); */
-
-//urlList = await fetchAudioUrls();
-/* async function waitForUrl() {
-    urlList = await fetchAudioUrls();
-}
-waitForUrl(); */
-urlList = fetchAudioUrls();
-
 let playback = {};
+const connectPlayback = (pb) => playback = pb;
+
 function endedSpeaking() {
     errorCounter = 0;
     if(++versionCounter < playlist.length) {
@@ -83,38 +68,17 @@ function speakNext() {
     }
 }
 
-function startSpeaking(pi) {
-    playback = pi;
+function startSpeaking() {
     versionCounter = 0;
-
-    if(!urlList) {
-        playbackIsWaiting = true;
-        console.log('wating for url list!');
-        return;
-    }
-
     speakNext();
 }
 
 function prepareFirst() { // preloading first variant of pronunciation
     const item = playlist[0];
     if(item.type === 'play') prepareRecord(item);
-
-    //console.log(urlList);
-    /* if(playbackIsWaiting) {
-        playbackIsWaiting = false;
-        speakNext();
-    } */
 }
 
 function preparePlaylist(variants) {
-    console.log(urlList);
-    console.log(!urlList);
-    if(!urlList) {
-        waitingVariants = variants;
-        return;
-    }
-
     playlist.length = 0;
 
     for(const variant of variants) {
@@ -146,4 +110,31 @@ function preparePlaylist(variants) {
     prepareFirst();
 }
 
-export { preparePlaylist, startSpeaking, endedSpeaking };
+let playbackIsWaiting = false;
+let stsp = () => {
+    playbackIsWaiting = true;
+    console.log('Wating for the url list!');
+}
+const exportStartSpeaking = (pi) => stsp(pi);
+
+let waitingVariants = null;
+let ppl = (variants) => waitingVariants = variants;
+const exportPreparePlaylist = (variants) => ppl(variants);
+
+
+fetchAudioUrls().then(result => {
+    urlList = result;
+    console.timeLog('tt', 'audio urls loaded!');
+    
+    ppl = preparePlaylist;
+    stsp = startSpeaking;
+    if(waitingVariants) preparePlaylist(waitingVariants);
+    if(playbackIsWaiting) startSpeaking();
+});
+
+export {
+    connectPlayback,
+    exportPreparePlaylist as preparePlaylist,
+    exportStartSpeaking as startSpeaking,
+    endedSpeaking
+};

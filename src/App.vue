@@ -4,7 +4,7 @@ import nextCard from '@/nextCard';
 import evaluate from '@/evaluate';
 import { updateCard } from './updateDB';
 import { saveSession, restoreSession } from '@/useLocalStorage';
-import { preparePlaylist, startSpeaking } from './pronunciation';
+import { connectPlayback, preparePlaylist, startSpeaking } from './pronunciation';
 
 export default {
   name: 'App',
@@ -61,6 +61,8 @@ export default {
   created() {
     console.timeLog('tt', 'created!');
 
+    connectPlayback(this.playback);
+
     const restored = restoreSession();
     if(restored) {
       this.session = restored.session;
@@ -100,7 +102,7 @@ export default {
 
     play() {
       this.playback.on = true;
-      startSpeaking(this.playback);
+      startSpeaking();
     },
 
     showAnswer() {
