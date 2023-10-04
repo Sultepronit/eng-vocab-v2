@@ -39,7 +39,7 @@ function nextCard(session) {
 
     //console.log(cardId);
     const card = cards[cardId];
-    //const currentCard = cards[23];
+    //const card = cards[23];
     //const card = cards[380];
     //console.log(card);
 

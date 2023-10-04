@@ -19,12 +19,19 @@ let waitingVariants = null;
 let playbackIsWaiting = false;
 let urlList = null;
 
-fetchAudioUrls().then(result => {
+/* fetchAudioUrls().then(result => {
     urlList = result;
     console.timeLog('tt', 'audio urls loaded!');
     if(waitingVariants) preparePlaylist(waitingVariants);
     if(playbackIsWaiting) speakNext();
-});
+}); */
+
+//urlList = await fetchAudioUrls();
+/* async function waitForUrl() {
+    urlList = await fetchAudioUrls();
+}
+waitForUrl(); */
+urlList = fetchAudioUrls();
 
 let playback = {};
 function endedSpeaking() {
@@ -40,15 +47,6 @@ function endedSpeaking() {
 
 audio.onended = endedSpeaking;
 
-audio.onerror = () => {
-    if(errorCounter++ > 2) {
-        console.log('no good source - will be generated');
-        playlist[versionCounter].type = 'generate';
-        return;
-    }
-    prepareRecord(playlist[versionCounter]);
-}
-
 console.log('the audio is created!');
 
 function prepareRecord(item) {
@@ -58,7 +56,20 @@ function prepareRecord(item) {
 
 function playRecord(item) {
     if(versionCounter > 0) prepareRecord(item);
-    audio.play();
+    //audio.play();
+    const playing = audio.play(); // pormise
+    playing.then().catch((err) => {
+        console.warn(err);
+        if(errorCounter++ > 2) {
+            console.warn('No good source - will be generated!');
+            playlist[versionCounter].type = 'generate';
+            generateSpeech(item.text);
+        } else {
+            console.warn('Trying to load next url!');
+            prepareRecord(item);
+            playRecord(item);
+        }
+    });
     console.log(audio.src);
 }
 
@@ -87,16 +98,18 @@ function startSpeaking(pi) {
 
 function prepareFirst() { // preloading first variant of pronunciation
     const item = playlist[0];
-    versionCounter = 0;
     if(item.type === 'play') prepareRecord(item);
 
-    if(playbackIsWaiting) {
+    //console.log(urlList);
+    /* if(playbackIsWaiting) {
         playbackIsWaiting = false;
         speakNext();
-    }
+    } */
 }
 
 function preparePlaylist(variants) {
+    console.log(urlList);
+    console.log(!urlList);
     if(!urlList) {
         waitingVariants = variants;
         return;
