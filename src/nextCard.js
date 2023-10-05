@@ -30,8 +30,8 @@ function splitWordVariants(chunk) {
 function nextCard(session) {
     const { cards, content, learnList, confirmList, repeatList } = session;
     const cardType = pullRandomFromArray(content);
-    console.log(cardType);
-    console.log(content);
+    //console.log(cardType);
+    //console.log(content);
 
     const cardId = cardType === 'LEARN' ? pullRandomFromArray(learnList)
         : cardType === 'CONFIRM' ? pullRandomFromArray(confirmList)

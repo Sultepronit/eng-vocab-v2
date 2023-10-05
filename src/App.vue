@@ -182,7 +182,10 @@ export default {
       </p>
     </div>
 
-    <p class="playButton" @click="play">🔈</p>
+    <p class="playButton" @click="play">
+      <span v-show="!playback.on">🔈</span>
+      <span v-show="playback.on">🔊</span>
+    </p>
   </header>
 
   <main>
