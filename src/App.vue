@@ -108,8 +108,6 @@ export default {
     showAnswer() {
       this.buttons = 'EVALUATE';
 
-      this.play();
-
       this.transc = this.current.card.transc;
       this.word = this.current.word.answer;
       if(this.current.direction === 'FORWARD') {
@@ -118,6 +116,12 @@ export default {
       this.example = this.current.card.example;
 
       this.enableReset = false;
+
+      try {
+        this.play();
+      } catch (error) {
+        alert(error);
+      }
     },
 
     evaluateAndSave(mark) {
