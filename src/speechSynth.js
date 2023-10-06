@@ -39,7 +39,7 @@ console.log('the speech synthesis is ready!');
 function generateSpeech(text) {
     utterance.text = text;
     speechSynthesis.speak(utterance);
-    console.log(utterance.voice.name);
+    console.log(utterance?.voice?.name);
 }
 
 export { generateSpeech };
