@@ -28,7 +28,7 @@ function prepareSession(data) {
 	}
 
     const dif = session.repeatList.length - 400;
-    console.log(dif);
+    //console.log(dif);
 	if(dif < 0) {
         //console.log(data.maxToRepeat);
 		data.maxToRepeat -= dif * 2;

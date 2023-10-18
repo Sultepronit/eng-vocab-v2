@@ -61,6 +61,8 @@ export default {
   created() {
     console.timeLog('tt', 'created!');
 
+    console.log(window.outerWidth);
+
     connectPlayback(this.playback);
 
     const restored = restoreSession();
