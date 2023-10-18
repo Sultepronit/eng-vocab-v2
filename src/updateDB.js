@@ -3,6 +3,7 @@ const sheet = 'db';
 
 function updateMaxToRepeat(newVal) {
     postData(sheet, [['L4', newVal]]);
+    //postData(sheet, [['M4', newVal]]);
 }
 
 function updateNextRepeated(newVal) {

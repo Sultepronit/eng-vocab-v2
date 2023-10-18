@@ -28,15 +28,17 @@ function prepareSession(data) {
 	}
 
     const dif = session.repeatList.length - 400;
+    console.log(dif);
 	if(dif < 0) {
-		session.maxToRepeat -= dif * 2;
-		//console.log(nextRepeated + " / " + maxToRepeat);
-		updateMaxToRepeat(session.maxToRepeat);
+        //console.log(data.maxToRepeat);
+		data.maxToRepeat -= dif * 2;
+        //console.log(data.maxToRepeat);
+		updateMaxToRepeat(data.maxToRepeat);
 	}
 
-    /* console.log(session.learnList);
+    console.log(session.learnList);
     console.log(session.confirmList);
-    console.log(session.repeatList); */
+    console.log(session.repeatList);
 
     console.log("repeat: " + session.repeatNumber);
 	session.confirmNumber = Math.round(session.confirmList.length / data.confirmDivider);
