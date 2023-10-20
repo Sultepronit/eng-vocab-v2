@@ -1,6 +1,6 @@
 <script>
 import startSession from '@/startSession';
-import nextCard from '@/nextCard';
+import nextCard from './nextCard';
 import evaluate from '@/evaluate';
 import { updateCard } from '@/updateDB';
 import { saveSession, restoreSession } from '@/useLocalStorage';
