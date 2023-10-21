@@ -2,7 +2,7 @@ import { pullRandomFromArray } from '@/commonFunctions';
 import splitWordVariants from '@/splitWordVariants';
 
 function nextCard(session) {
-    console.log(session);
+    //console.log(session);
     const { cards, repeatList } = session;
 
     const cardId = pullRandomFromArray(repeatList);

@@ -2,11 +2,13 @@
 import { ref, onMounted, reactive } from 'vue';
 import startSession from './startSession';
 import nextCard from './nextCard';
-//import { connectKeyControl } from './keyboardListener';
 import { connectPlayback, preparePlaylist, startSpeaking } from '@/pronunciation';
 
-
 const theInput = ref(null);
+
+const typedIn = ref('');
+const showTypedIn = ref(true);
+const typedInColor = ref('');
 
 const playback = reactive({ on: false });
 connectPlayback(playback);
@@ -27,14 +29,34 @@ onMounted(() => {
 });
 
 const mark = ref('');
+const correctInput = ref(true);
+
 const expectedAction = ref('');
+
+function showTheInput() {
+    //console.log('hiding the input!');
+    theInput.value.style.display = 'block';
+    theInput.value.focus();
+    showTypedIn.value = false;
+}
+
+function hideTheInput() {
+    //console.log('showing the input!')
+    theInput.value.style.display = 'none';
+    showTypedIn.value = true;
+}
+
+function typeInAnswer() {
+    showTheInput();
+    expectedAction.value = 'initEvaluateAnswer';
+}
 
 function showNext() {
     current.value = nextCard(session);
     console.log(current.value);
-
-    theInput.value.style.display = 'none';
     mark.value = '';
+
+    typedIn.value = '';
 
     word.value = current.value.direction === 'FORWARD'
         ? current.value.word.question : current.value.word.hint;
@@ -47,7 +69,13 @@ function showNext() {
     example.value = '';
 
     preparePlaylist(current.value.word.variants);
-    expectedAction.value = 'initShowAnswer';
+
+    if(current.value.direction === 'BACKWARD') {
+        typeInAnswer();
+    } else {
+        hideTheInput();
+        expectedAction.value = 'initShowAnswer';
+    }
 }
 
 function play() {
@@ -71,44 +99,62 @@ function showAnswer() {
 
     expectedAction.value = 'evaluate';
 }
-function trainWriting() {
-    theInput.value.style.display = 'block';
-    theInput.value.focus();
-
-    expectedAction.value = 'initEvaluateTraining';
-}
 
 function evaluateInput() {
     if(theInput.value.value === current.value.word.question) {
-        theInput.value.value = '';
         return 'GOOD!'
     } else {
         return theInput.value.value;
     }
 }
 
+function evaluateAnswer() {
+    showAnswer();
+    hideTheInput();
+
+    typedIn.value = theInput.value.value;
+    if(evaluateInput() === 'GOOD!') {
+        mark.value = 'good';
+        correctInput.value = true;
+
+        typedInColor.value = 'blue';
+    } else {
+        mark.value = 'bad';
+        correctInput.value = false;
+
+        typedInColor.value = 'red';
+        if(typedIn.value === '') typedIn.value = '~';
+    }
+    theInput.value.value = '';
+}
+
+function trainWriting() {
+    showTheInput();
+    expectedAction.value = 'initEvaluateTraining';
+}
+
 function evaluateTraining() {
     if(evaluateInput() === 'GOOD!') {
-        showNext();
-    } else {
-        theInput.value.style.color = 'red';
-    }
-    /* if(theInput.value.value === current.value.word.question) {
         theInput.value.value = '';
         showNext();
     } else {
         theInput.value.style.color = 'red';
-    } */
+    }
 }
 
 function saveProgress() {
     console.log('save!');
-    trainWriting();
-    //showNext();
+    if(current.value.direction === 'FORWARD' || !correctInput.value) {
+        trainWriting();
+    } else {
+        showNext();
+    }
 }
 
-const keyMonitor = ref('_');
 const actions = {
+    initEvaluateAnswer(key) {
+        if(key === 'Enter') evaluateAnswer();
+    },
     initShowAnswer(key) {
         if(key === 'Enter') showAnswer();
     },
@@ -131,16 +177,20 @@ const actions = {
         }
     }
 };
+
+const keyMonitor = ref('_');
 function keyAction(key) {
-    //console.log(key);
     if(key === 'Shift') return;
 
     keyMonitor.value = key;
 
     actions[expectedAction.value](key);
 
-    if(key === 'a' && expectedAction.value !== 'initEvaluateTraining') {
-        play();
+    if(key === 'a') {
+        if(expectedAction.value !== 'initEvaluateAnswer'
+        && expectedAction.value !== 'initEvaluateTraining') {
+            play();
+        } 
     } else if(key === 'Alt') {
         play();
     }
@@ -149,9 +199,13 @@ document.addEventListener('keyup', (event) => keyAction(event.key));
 </script>
 
 <template>
-    <h1>This is a desktop version!</h1>
     <p class="monitor">{{ keyMonitor }}</p>
+
     <input ref="theInput" type="text" />
+
+    <p v-show="showTypedIn" class="typed-in" :style="{ color: typedInColor }">
+        {{ typedIn }}
+    </p>
 
     <main v-bind:class="mark">
         <p class="word" :class="{'active-playback': playback.on}" v-html="word" />
@@ -165,10 +219,17 @@ document.addEventListener('keyup', (event) => keyAction(event.key));
 .monitor {
     font-size: 1.5rem;
     height: 1.5rem;
+    margin: 0.2em;
 }
+
 input {
     font-size: 3rem;
 }
+
+.typed-in {
+    font-size: 3rem;
+}
+
 main {
     border: 5px solid white;
 }
