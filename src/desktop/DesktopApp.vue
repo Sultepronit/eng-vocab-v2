@@ -4,20 +4,44 @@ import startSession from './startSession';
 import nextCard from './nextCard';
 import { connectPlayback, preparePlaylist, startSpeaking } from '@/pronunciation';
 
+// input //
 const theInput = ref(null);
 
 const typedIn = ref('');
 const showTypedIn = ref(true);
 const typedInColor = ref('');
 
+function showTheInput() {
+    theInput.value.style.display = 'block';
+    theInput.value.focus();
+    showTypedIn.value = false;
+}
+
+function hideTheInput() {
+    theInput.value.style.display = 'none';
+    showTypedIn.value = true;
+}
+
+// playback //
 const playback = reactive({ on: false });
 connectPlayback(playback);
 
+function play() {
+    playback.on = true;
+    try {
+        startSpeaking();
+    } catch (error) {
+        alert(error);
+    }
+}
+
+// main display //
 const word = ref('word');
 const transc = ref('transcritption');
 const transl = ref('translation');
 const example = ref('example');
 
+// session //
 const current = ref({});
 
 const session = await startSession();
@@ -33,24 +57,7 @@ const correctInput = ref(true);
 
 const expectedAction = ref('');
 
-function showTheInput() {
-    //console.log('hiding the input!');
-    theInput.value.style.display = 'block';
-    theInput.value.focus();
-    showTypedIn.value = false;
-}
-
-function hideTheInput() {
-    //console.log('showing the input!')
-    theInput.value.style.display = 'none';
-    showTypedIn.value = true;
-}
-
-function typeInAnswer() {
-    showTheInput();
-    expectedAction.value = 'initEvaluateAnswer';
-}
-
+// repeat cycle //
 function showNext() {
     current.value = nextCard(session);
     console.log(current.value);
@@ -71,49 +78,18 @@ function showNext() {
     preparePlaylist(current.value.word.variants);
 
     if(current.value.direction === 'BACKWARD') {
-        typeInAnswer();
+        showTheInput();
     } else {
         hideTheInput();
-        expectedAction.value = 'initShowAnswer';
     }
-}
-
-function play() {
-    playback.on = true;
-    startSpeaking();
-}
-
-function showAnswer() {
-    transc.value = current.value.card.transc;
-    word.value = current.value.word.answer;
-    if(current.value.direction === 'FORWARD') {
-        transl.value = current.value.card.transl;
-    } 
-    example.value = current.value.card.example;
-
-    try {
-        play();
-    } catch (error) {
-        alert(error);
-    }
-
-    expectedAction.value = 'evaluate';
-}
-
-function evaluateInput() {
-    if(theInput.value.value === current.value.word.question) {
-        return 'GOOD!'
-    } else {
-        return theInput.value.value;
-    }
+    expectedAction.value = 'initShowAnswer';
 }
 
 function evaluateAnswer() {
-    showAnswer();
     hideTheInput();
 
     typedIn.value = theInput.value.value;
-    if(evaluateInput() === 'GOOD!') {
+    if(theInput.value.value === current.value.word.question) {
         mark.value = 'good';
         correctInput.value = true;
 
@@ -128,13 +104,30 @@ function evaluateAnswer() {
     theInput.value.value = '';
 }
 
+function showAnswer() {
+    transc.value = current.value.card.transc;
+    word.value = current.value.word.answer;
+    if(current.value.direction === 'FORWARD') {
+        transl.value = current.value.card.transl;
+    } 
+    example.value = current.value.card.example;
+
+    if(current.value.direction === 'BACKWARD') {
+        evaluateAnswer();
+    }
+
+    play();
+
+    expectedAction.value = 'evaluate';
+}
+
 function trainWriting() {
     showTheInput();
     expectedAction.value = 'initEvaluateTraining';
 }
 
 function evaluateTraining() {
-    if(evaluateInput() === 'GOOD!') {
+    if(theInput.value.value === current.value.word.question) {
         theInput.value.value = '';
         showNext();
     } else {
@@ -151,10 +144,8 @@ function saveProgress() {
     }
 }
 
+// keyboard control //
 const actions = {
-    initEvaluateAnswer(key) {
-        if(key === 'Enter') evaluateAnswer();
-    },
     initShowAnswer(key) {
         if(key === 'Enter') showAnswer();
     },
@@ -186,12 +177,7 @@ function keyAction(key) {
 
     actions[expectedAction.value](key);
 
-    if(key === 'a') {
-        if(expectedAction.value !== 'initEvaluateAnswer'
-        && expectedAction.value !== 'initEvaluateTraining') {
-            play();
-        } 
-    } else if(key === 'Alt') {
+    if(key === 'Alt') {
         play();
     }
 }
@@ -208,7 +194,11 @@ document.addEventListener('keyup', (event) => keyAction(event.key));
     </p>
 
     <main v-bind:class="mark">
-        <p class="word" :class="{'active-playback': playback.on}" v-html="word" />
+        <p class="word">
+            <span v-show="playback.on" class="playback"></span>
+            <span v-html="word" />
+            <span v-show="playback.on" class="playback"> 🔊</span>
+        </p>
         <p class="transc">{{ transc }}</p>
         <p class="transl" v-html="transl" />
         <p class="example" v-html="example" />
@@ -223,11 +213,18 @@ document.addEventListener('keyup', (event) => keyAction(event.key));
 }
 
 input {
-    font-size: 3rem;
+    width: 100%;
+    text-align: center;
+    font-size: 4rem;
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
 }
 
 .typed-in {
-    font-size: 3rem;
+    text-align: center;
+    font-size: 4rem;
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
 }
 
 main {
@@ -244,12 +241,11 @@ main {
     border-color: yellow;
 }
 
-.active-playback::after {
-    content: ' 🔊';
+.playback {
+    display: inline-block;
+    /* background: yellow; */
+    width: 2em;
     font-size: 0.7em;
 }
 
-.active-playback {
-    padding-left: 1em;
-}
 </style>
