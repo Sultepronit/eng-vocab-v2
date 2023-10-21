@@ -7,7 +7,6 @@ import { connectPlayback, preparePlaylist, startSpeaking } from '@/pronunciation
 
 
 const theInput = ref(null);
-//const showInput = ref(false);
 
 const playback = reactive({ on: false });
 connectPlayback(playback);
@@ -52,15 +51,11 @@ function showNext() {
 }
 
 function play() {
-    //this.playback.on = true;
     playback.on = true;
     startSpeaking();
-    console.log(playback);
 }
 
 function showAnswer() {
-    console.log('show!');
-
     transc.value = current.value.card.transc;
     word.value = current.value.word.answer;
     if(current.value.direction === 'FORWARD') {
@@ -76,27 +71,34 @@ function showAnswer() {
 
     expectedAction.value = 'evaluate';
 }
-
 function trainWriting() {
-    //showInput.value = true;
-    //console.log(theInput);
-    //console.log(theInput.value.style.display);
     theInput.value.style.display = 'block';
     theInput.value.focus();
 
     expectedAction.value = 'initEvaluateTraining';
 }
 
-function evaluateTraining() {
-    console.log(theInput.value.value);
-    //console.log(theInput.value.value, current.value.word.question);
+function evaluateInput() {
     if(theInput.value.value === current.value.word.question) {
+        theInput.value.value = '';
+        return 'GOOD!'
+    } else {
+        return theInput.value.value;
+    }
+}
+
+function evaluateTraining() {
+    if(evaluateInput() === 'GOOD!') {
+        showNext();
+    } else {
+        theInput.value.style.color = 'red';
+    }
+    /* if(theInput.value.value === current.value.word.question) {
         theInput.value.value = '';
         showNext();
     } else {
-        //theInput.value.style.borderColor = 'red';
         theInput.value.style.color = 'red';
-    }
+    } */
 }
 
 function saveProgress() {
@@ -113,23 +115,20 @@ const actions = {
     evaluate(key) {
         if(key === 'g') {
             mark.value = 'good';
-            return;
-        }
-        if(key === 'b') {
+        } else if(key === 'b') {
             mark.value = 'bad';
-            return;
-        }
-        if(key === 'n') {
+        } else if(key === 'n') {
             mark.value = 'neutral';
-            return;
-        }
-        if(key === 'Enter' && mark.value !== '') {
-            saveProgress();
+        } else if(key === 'Enter' && mark.value !== '') {
+            if(!playback.on) saveProgress();
         }
     },
     initEvaluateTraining(key) {
-        if(key === 'Enter') {evaluateTraining();}
-        else theInput.value.style.color = 'black';
+        if(key === 'Enter') {
+            evaluateTraining();
+        } else {
+            theInput.value.style.color = 'black';
+        }
     }
 };
 function keyAction(key) {
@@ -152,8 +151,6 @@ document.addEventListener('keyup', (event) => keyAction(event.key));
 <template>
     <h1>This is a desktop version!</h1>
     <p class="monitor">{{ keyMonitor }}</p>
-    <!-- <p>{{ keyControl.monitor }}</p> -->
-    <!-- <input ref="theInput" type="text" v-show="showInput" /> -->
     <input ref="theInput" type="text" />
 
     <main v-bind:class="mark">
