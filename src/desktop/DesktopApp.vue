@@ -1,10 +1,21 @@
 <script setup>
 console.timeLog('tt', 'desktop setup!');
-import { ref, onMounted, reactive } from 'vue';
+import '../assets/desktop.css';
+import { ref, reactive } from 'vue';
 import startSession from './startSession';
 import nextCard from './nextCard';
+import evaluate from './evaluate';
 import { connectPlayback, preparePlaylist, startSpeaking } from '@/pronunciation';
 import { directions, marks } from './enums';
+
+// stats //
+const progress = reactive({
+    repeated: 0,
+    good: 0,
+    bad: 0,
+    upgraded: 0,
+    degraded: 0
+});
 
 // input //
 const theInput = ref(null);
@@ -24,6 +35,12 @@ function hideTheInput() {
     showTypedIn.value = true;
 }
 
+// main display //
+const word = ref('word');
+const transc = ref('transcritption');
+const transl = ref('translation');
+const example = ref('example');
+
 // playback //
 const playback = reactive({ on: false });
 connectPlayback(playback);
@@ -37,40 +54,27 @@ function play() {
     }
 }
 
-// main display //
-const word = ref('word');
-const transc = ref('transcritption');
-const transl = ref('translation');
-const example = ref('example');
-
 // session //
-//const session = await startSession();
 let session = {};
+let current = {};
 startSession().then((data) => {
     session = data;
     showNext();
     console.timeLog('tt', 'ready to go!');
 });
-//const current = ref({});
-let current = {};
 
-/* onMounted(() => {
-    showNext();
-    console.timeLog('tt', 'ready to go!');
-}); */
-
-const mark = ref('');
-//const correctInput = ref(true);
+//const mark = ref('');
+const mark = ref(marks.NULL);
 let correctInput = true;
 
-//const expectedAction = ref('');
 let expectedAction = '';
 
 // repeat cycle //
 function showNext() {
     current = nextCard(session);
-    console.log(current);
-    mark.value = '';
+    //console.log(current);
+    //mark.value = '';
+    mark.value = marks.NULL;
 
     typedIn.value = '';
 
@@ -86,11 +90,6 @@ function showNext() {
 
     preparePlaylist(current.word.variants);
 
-    /* if(current.direction === 'BACKWARD') {
-        showTheInput();
-    } else {
-        hideTheInput();
-    } */
     current.direction === directions.FORWARD ? hideTheInput() : showTheInput();
     expectedAction = 'initShowAnswer';
 }
@@ -145,8 +144,12 @@ function evaluateTraining() {
     }
 }
 
-function saveProgress() {
+function evaluateAndSave() {
     console.log('save!');
+    console.log(current);
+
+    evaluate(progress, mark.value, current, session);
+
     if(current.direction === directions.FORWARD || !correctInput) {
         trainWriting();
     } else {
@@ -156,7 +159,8 @@ function saveProgress() {
 
 // keyboard control //
 const keyMonitor = ref('_');
-function keyAction(key) {
+//function keyAction(key) {
+document.addEventListener('keyup', ({ key }) => {
     if(key === 'Shift') return;
 
     const actions = {
@@ -171,7 +175,7 @@ function keyAction(key) {
             } else if(key === 'n') {
                 mark.value = marks.NEUTRAL;
             } else if(key === 'Enter') {
-                if(mark.value !== '' && !playback.on) saveProgress();
+                if(mark.value !== marks.NULL && !playback.on) evaluateAndSave();
             }
         },
         initEvaluateTraining(key) {
@@ -184,15 +188,21 @@ function keyAction(key) {
     };
 
     keyMonitor.value = key;
-
+    console.log(expectedAction);
     actions[expectedAction](key);
 
     if(key === 'Alt') play();
-}
-document.addEventListener('keyup', (event) => keyAction(event.key));
+});
+//document.addEventListener('keyup', (event) => keyAction(event.key));
 </script>
 
 <template>
+    <p class="progress">
+        <strong>{{ progress.repeated }}:</strong>
+        {{ progress.good }}-{{ progress.bad }}
+        <strong>{{ progress.upgraded }}-{{ progress.degraded }}</strong>
+    </p>
+
     <p class="monitor">{{ keyMonitor }}</p>
 
     <input ref="theInput" type="text" />
@@ -201,7 +211,7 @@ document.addEventListener('keyup', (event) => keyAction(event.key));
         {{ typedIn }}
     </p>
 
-    <main v-bind:class="mark">
+    <main v-bind:class="mark.name">
         <p class="word">
             <span v-show="playback.on" class="playback"></span>
             <span v-html="word" />
@@ -212,48 +222,3 @@ document.addEventListener('keyup', (event) => keyAction(event.key));
         <p class="example" v-html="example" />
     </main>
 </template>
-
-<style>
-.monitor {
-    font-size: 1.5rem;
-    height: 1.5rem;
-    margin: 0.2em;
-}
-
-input {
-    width: 100%;
-    text-align: center;
-    font-size: 4rem;
-    font-family: 'Times New Roman', Times, serif;
-    font-style: italic;
-}
-
-.typed-in {
-    text-align: center;
-    font-size: 4rem;
-    font-family: 'Times New Roman', Times, serif;
-    font-style: italic;
-}
-
-main {
-    border: 5px solid white;
-}
-.good {
-    /* border: 4px solid green; */
-    border-color: green;
-}
-.bad {
-    border-color: red;
-}
-.neutral {
-    border-color: yellow;
-}
-
-.playback {
-    display: inline-block;
-    /* background: yellow; */
-    width: 2em;
-    font-size: 0.7em;
-}
-
-</style>

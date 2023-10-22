@@ -3,10 +3,17 @@ const directions = {
     BACKWARD: 'backward'
 };
 
-const marks = {
+/* const marks = {
     GOOD: 'good',
     BAD: 'bad',
     NEUTRAL: 'neutral'
+}; */
+
+const marks = {
+    GOOD: { name: 'good', increment: 1 },
+    BAD: { name: 'bad', increment: -1 },
+    NEUTRAL: { name: 'neutral', increment: 0 },
+    NULL: { name: '', increment: 0 },
 };
 
 export { directions, marks };
