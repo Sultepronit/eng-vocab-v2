@@ -1,5 +1,6 @@
 import { pullRandomFromArray } from '@/commonFunctions';
 import splitWordVariants from '@/splitWordVariants';
+import { directions } from './enums';
 
 function nextCard(session) {
     //console.log(session);
@@ -11,7 +12,8 @@ function nextCard(session) {
     //const card = cards[23];
     //const card = cards[380];
 
-    const direction = (card.f > card.b) ? "BACKWARD" : "FORWARD";
+    const direction = (card.f > card.b)
+        ? directions.BACKWARD : directions.FORWARD;
 
     const word = splitWordVariants(card.word);
 

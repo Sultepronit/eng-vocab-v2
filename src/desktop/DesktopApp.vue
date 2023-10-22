@@ -1,8 +1,10 @@
 <script setup>
+console.timeLog('tt', 'desktop setup!');
 import { ref, onMounted, reactive } from 'vue';
 import startSession from './startSession';
 import nextCard from './nextCard';
 import { connectPlayback, preparePlaylist, startSpeaking } from '@/pronunciation';
+import { directions, marks } from './enums';
 
 // input //
 const theInput = ref(null);
@@ -42,61 +44,69 @@ const transl = ref('translation');
 const example = ref('example');
 
 // session //
-const current = ref({});
-
-const session = await startSession();
-console.timeLog('tt', 'now we\'ll show the first card...');
-
-onMounted(() => {
+//const session = await startSession();
+let session = {};
+startSession().then((data) => {
+    session = data;
     showNext();
     console.timeLog('tt', 'ready to go!');
 });
+//const current = ref({});
+let current = {};
+
+/* onMounted(() => {
+    showNext();
+    console.timeLog('tt', 'ready to go!');
+}); */
 
 const mark = ref('');
-const correctInput = ref(true);
+//const correctInput = ref(true);
+let correctInput = true;
 
-const expectedAction = ref('');
+//const expectedAction = ref('');
+let expectedAction = '';
 
 // repeat cycle //
 function showNext() {
-    current.value = nextCard(session);
-    console.log(current.value);
+    current = nextCard(session);
+    console.log(current);
     mark.value = '';
 
     typedIn.value = '';
 
-    word.value = current.value.direction === 'FORWARD'
-        ? current.value.word.question : current.value.word.hint;
+    word.value = current.direction === directions.FORWARD
+        ? current.word.question : current.word.hint;
 
     transc.value = '';
 
-    transl.value = current.value.direction === 'BACKWARD'
-        ? current.value.card.transl : '';
+    transl.value = current.direction === directions.BACKWARD
+        ? current.card.transl : '';
 
     example.value = '';
 
-    preparePlaylist(current.value.word.variants);
+    preparePlaylist(current.word.variants);
 
-    if(current.value.direction === 'BACKWARD') {
+    /* if(current.direction === 'BACKWARD') {
         showTheInput();
     } else {
         hideTheInput();
-    }
-    expectedAction.value = 'initShowAnswer';
+    } */
+    current.direction === directions.FORWARD ? hideTheInput() : showTheInput();
+    expectedAction = 'initShowAnswer';
 }
 
 function evaluateAnswer() {
     hideTheInput();
 
     typedIn.value = theInput.value.value;
-    if(theInput.value.value === current.value.word.question) {
-        mark.value = 'good';
-        correctInput.value = true;
+    if(theInput.value.value === current.word.question) {
+        mark.value = marks.GOOD;
+        correctInput = true;
 
         typedInColor.value = 'blue';
     } else {
-        mark.value = 'bad';
-        correctInput.value = false;
+        mark.value = marks.BAD;
+        correctInput = false;
 
         typedInColor.value = 'red';
         if(typedIn.value === '') typedIn.value = '~';
@@ -105,29 +115,29 @@ function evaluateAnswer() {
 }
 
 function showAnswer() {
-    transc.value = current.value.card.transc;
-    word.value = current.value.word.answer;
-    if(current.value.direction === 'FORWARD') {
-        transl.value = current.value.card.transl;
+    transc.value = current.card.transc;
+    word.value = current.word.answer;
+    if(current.direction === directions.FORWARD) {
+        transl.value = current.card.transl;
     } 
-    example.value = current.value.card.example;
+    example.value = current.card.example;
 
-    if(current.value.direction === 'BACKWARD') {
+    if(current.direction === directions.BACKWARD) {
         evaluateAnswer();
     }
 
     play();
 
-    expectedAction.value = 'evaluate';
+    expectedAction = 'evaluate';
 }
 
 function trainWriting() {
     showTheInput();
-    expectedAction.value = 'initEvaluateTraining';
+    expectedAction = 'initEvaluateTraining';
 }
 
 function evaluateTraining() {
-    if(theInput.value.value === current.value.word.question) {
+    if(theInput.value.value === current.word.question) {
         theInput.value.value = '';
         showNext();
     } else {
@@ -137,7 +147,7 @@ function evaluateTraining() {
 
 function saveProgress() {
     console.log('save!');
-    if(current.value.direction === 'FORWARD' || !correctInput.value) {
+    if(current.direction === directions.FORWARD || !correctInput) {
         trainWriting();
     } else {
         showNext();
@@ -145,41 +155,39 @@ function saveProgress() {
 }
 
 // keyboard control //
-const actions = {
-    initShowAnswer(key) {
-        if(key === 'Enter') showAnswer();
-    },
-    evaluate(key) {
-        if(key === 'g') {
-            mark.value = 'good';
-        } else if(key === 'b') {
-            mark.value = 'bad';
-        } else if(key === 'n') {
-            mark.value = 'neutral';
-        } else if(key === 'Enter' && mark.value !== '') {
-            if(!playback.on) saveProgress();
-        }
-    },
-    initEvaluateTraining(key) {
-        if(key === 'Enter') {
-            evaluateTraining();
-        } else {
-            theInput.value.style.color = 'black';
-        }
-    }
-};
-
 const keyMonitor = ref('_');
 function keyAction(key) {
     if(key === 'Shift') return;
 
+    const actions = {
+        initShowAnswer(key) {
+            if(key === 'Enter') showAnswer();
+        },
+        evaluate(key) {
+            if(key === 'g') {
+                mark.value = marks.GOOD;
+            } else if(key === 'b') {
+                mark.value = marks.BAD;
+            } else if(key === 'n') {
+                mark.value = marks.NEUTRAL;
+            } else if(key === 'Enter') {
+                if(mark.value !== '' && !playback.on) saveProgress();
+            }
+        },
+        initEvaluateTraining(key) {
+            if(key === 'Enter') {
+                evaluateTraining();
+            } else { // in case that there was a miskate and the color is red
+                theInput.value.style.color = 'black';
+            }
+        }
+    };
+
     keyMonitor.value = key;
 
-    actions[expectedAction.value](key);
+    actions[expectedAction](key);
 
-    if(key === 'Alt') {
-        play();
-    }
+    if(key === 'Alt') play();
 }
 document.addEventListener('keyup', (event) => keyAction(event.key));
 </script>

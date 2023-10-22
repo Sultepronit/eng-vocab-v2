@@ -39,7 +39,7 @@ function parseDb(dataSheet) {
     for(let e of dataSheet) {
         if(isNaN(e[0])) break;
         
-        if(e[0] < 3) {
+        if(e[0] < 2) {
             result.parsedDb.push(null);
             continue;
         }
@@ -63,6 +63,7 @@ function parseDb(dataSheet) {
 }
 
 async function startSession() {
+    console.timeLog('tt', 'fetching data!');
     const dataSheet = await getData('db', 'A', 'L');
     console.timeLog('tt', 'received data!');
 

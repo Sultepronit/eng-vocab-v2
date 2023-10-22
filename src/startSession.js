@@ -88,6 +88,7 @@ function parseDb(dataSheet) {
 }
 
 async function startSession() {
+    console.timeLog('tt', 'fetching data!');
     const dataSheet = await getData('db', 'A', 'L');
     console.timeLog('tt', 'received data!');
 
