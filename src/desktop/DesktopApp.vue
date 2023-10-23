@@ -49,8 +49,20 @@ function play() {
 
 // session //
 let session = {};
+const keyMonitor = ref('_');
+let processAction = null;
+
 startSession().then((data) => {
     session = data;
+
+    document.addEventListener('keyup', ({ key }) => {
+        if(key === 'Shift') return
+        keyMonitor.value = key;
+
+        processAction(key);
+        if(key === 'Alt') play();
+    });
+
     showNext();
     console.timeLog('tt', 'ready to go!');
 });
@@ -58,57 +70,66 @@ startSession().then((data) => {
 // repeat cycle //
 const mark = ref(marks.NULL);
 let correctInput = true;
-let expectedAction = '';
 let current = {};
 const displayStage = ref('');
 
 function showNext() {
     current = reactive( nextCard(session) );
-
     displayStage.value = current.direction;
-
-    mark.value = marks.NULL;
-
     typedIn.value = '';
-
+    mark.value = marks.NULL;
     preparePlaylist(current.word.variants);
-
     current.direction === directions.FORWARD ? hideTheInput() : showTheInput();
-    expectedAction = 'initShowAnswer';
+    
+    processAction = (key) => { if(key === 'Enter') showAnswer() };
 }
 
 function evaluateAnswer() {
     hideTheInput();
-
     typedIn.value = theInput.value.value;
-    if(theInput.value.value === current.word.question) {
+    theInput.value.value = '';
+    if(typedIn.value === current.word.question) {
         mark.value = marks.GOOD;
         correctInput = true;
-
         typedInColor.value = 'blue';
     } else {
         mark.value = marks.BAD;
         correctInput = false;
-
         typedInColor.value = 'red';
         if(typedIn.value === '') typedIn.value = '~';
     }
-    theInput.value.value = '';
 }
 
 function showAnswer() {
     displayStage.value = 'answer';
-
     if(current.direction === directions.BACKWARD) evaluateAnswer();
-
     play();
 
-    expectedAction = 'evaluate';
+    processAction = (key) => {
+        if(key === 'g') {
+            mark.value = marks.GOOD;
+        } else if(key === 'b') {
+            mark.value = marks.BAD;
+        } else if(key === 'n') {
+            mark.value = marks.NEUTRAL;
+        } else if(key === 'Enter') {
+            if(mark.value.name !== marks.NULL.name && !playback.on) {
+                evaluateAndSave();
+            }  
+        }
+    };
 }
 
 function trainWriting() {
     showTheInput();
-    expectedAction = 'initEvaluateTraining';
+    
+    processAction = (key) => {
+        if(key === 'Enter') {
+            evaluateTraining();
+        } else { // in case that there was a miskate and the color is red
+            theInput.value.style.color = 'black';
+        }
+    };
 }
 
 function evaluateTraining() {
@@ -133,42 +154,6 @@ function evaluateAndSave() {
         showNext();
     }
 }
-
-// keyboard control //
-const keyMonitor = ref('_');
-document.addEventListener('keyup', ({ key }) => {
-    if(key === 'Shift') return;
-
-    const actions = {
-        initShowAnswer(key) {
-            if(key === 'Enter') showAnswer();
-        },
-        evaluate(key) {
-            if(key === 'g') {
-                mark.value = marks.GOOD;
-            } else if(key === 'b') {
-                mark.value = marks.BAD;
-            } else if(key === 'n') {
-                mark.value = marks.NEUTRAL;
-            } else if(key === 'Enter') {
-                if(mark.value !== marks.NULL && !playback.on) evaluateAndSave();
-            }
-        },
-        initEvaluateTraining(key) {
-            if(key === 'Enter') {
-                evaluateTraining();
-            } else { // in case that there was a miskate and the color is red
-                theInput.value.style.color = 'black';
-            }
-        }
-    };
-
-    keyMonitor.value = key;
-
-    actions[expectedAction](key);
-
-    if(key === 'Alt') play();
-});
 </script>
 
 <template>
@@ -276,11 +261,11 @@ main {
 
 .transl {
     font-size: 2.5rem;
-    margin: 0.5rem 0 0.5rem;
+    margin: 0.5rem 0 1rem;
 }
 
 .example {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-style: italic;
 }
 .good {
