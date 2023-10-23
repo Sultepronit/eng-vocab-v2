@@ -1,11 +1,12 @@
 import { directions } from './enums';
+import { updateNextRepeated } from './updateDB';
 
 function evaluate(progress, mark, current, session) {
     progress.repeated++;
     progress[mark.name]++;
 
-    console.log(session.nextRepeated);
-    console.log(current.card);
+    //console.log(session.nextRepeated);
+    //console.log(current.card);
 
     if(current.direction === directions.FORWARD) {
         current.card.f += mark.increment;
@@ -19,20 +20,20 @@ function evaluate(progress, mark, current, session) {
         current.card.f = 0;
         current.card.b = 0;
 
-        //updateNextRepeated(session.nextRepeated);
+        updateNextRepeated(session.nextRepeated);
 
-        //return;
+        return;
     }
 
     if(current.card.f < -1 || current.card.b < -2) {
         progress.degraded++;
-        current.card.return = true;
+        current.card.toReturn = true;
         current.card.s = 0;
         current.card.f = 0;
         current.card.b = 0;
     }
 
-    console.log(current.card);
+    //console.log(current.card);
 }
 
 export default evaluate;

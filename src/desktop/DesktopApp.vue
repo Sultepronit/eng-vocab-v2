@@ -2,11 +2,13 @@
 console.timeLog('tt', 'desktop setup!');
 import '../assets/desktop.css';
 import { ref, reactive } from 'vue';
+import { directions, marks } from './enums';
 import startSession from './startSession';
 import nextCard from './nextCard';
 import evaluate from './evaluate';
+import { updateCard } from './updateDB';
 import { connectPlayback, preparePlaylist, startSpeaking } from '@/pronunciation';
-import { directions, marks } from './enums';
+
 
 // stats //
 const progress = reactive({
@@ -36,10 +38,10 @@ function hideTheInput() {
 }
 
 // main display //
-const word = ref('word');
+/* const word = ref('word');
 const transc = ref('transcritption');
 const transl = ref('translation');
-const example = ref('example');
+const example = ref('example'); */
 
 // playback //
 const playback = reactive({ on: false });
@@ -56,7 +58,6 @@ function play() {
 
 // session //
 let session = {};
-let current = {};
 startSession().then((data) => {
     session = data;
     showNext();
@@ -70,23 +71,35 @@ let correctInput = true;
 let expectedAction = '';
 
 // repeat cycle //
+let current = {};
+//let displayFields = {};
+const displayStage = ref('');
 function showNext() {
-    current = nextCard(session);
-    //console.log(current);
-    //mark.value = '';
+    //current = nextCard(session);
+    current = reactive( nextCard(session) );
+    //console.log(current.card.s);
+
+    /* displayFields = reactive({
+        ...current.card,
+        ...current.word,
+        cardId: current.cardId
+    }); */
+    //console.log(displayFields);
+    displayStage.value = current.direction;
+
     mark.value = marks.NULL;
 
     typedIn.value = '';
 
-    word.value = current.direction === directions.FORWARD
-        ? current.word.question : current.word.hint;
+    /* word.value = current.direction === directions.FORWARD
+        ? current.word.question : current.word.hint; */
 
-    transc.value = '';
+    /* transc.value = '';
 
     transl.value = current.direction === directions.BACKWARD
         ? current.card.transl : '';
 
-    example.value = '';
+    example.value = ''; */
 
     preparePlaylist(current.word.variants);
 
@@ -114,12 +127,13 @@ function evaluateAnswer() {
 }
 
 function showAnswer() {
-    transc.value = current.card.transc;
-    word.value = current.word.answer;
-    if(current.direction === directions.FORWARD) {
+    displayStage.value = 'answer';
+    //transc.value = current.card.transc;
+    //word.value = current.word.answer;
+    /* if(current.direction === directions.FORWARD) {
         transl.value = current.card.transl;
     } 
-    example.value = current.card.example;
+    example.value = current.card.example; */
 
     if(current.direction === directions.BACKWARD) {
         evaluateAnswer();
@@ -149,6 +163,7 @@ function evaluateAndSave() {
     console.log(current);
 
     evaluate(progress, mark.value, current, session);
+    updateCard(current.cardId, current.card);
 
     if(current.direction === directions.FORWARD || !correctInput) {
         trainWriting();
@@ -188,7 +203,7 @@ document.addEventListener('keyup', ({ key }) => {
     };
 
     keyMonitor.value = key;
-    console.log(expectedAction);
+    //console.log(expectedAction);
     actions[expectedAction](key);
 
     if(key === 'Alt') play();
@@ -203,22 +218,52 @@ document.addEventListener('keyup', ({ key }) => {
         <strong>{{ progress.upgraded }}-{{ progress.degraded }}</strong>
     </p>
 
-    <p class="monitor">{{ keyMonitor }}</p>
-
-    <input ref="theInput" type="text" />
-
-    <p v-show="showTypedIn" class="typed-in" :style="{ color: typedInColor }">
-        {{ typedIn }}
+    <p class="card">
+        {{ current.cardId }} [{{ current.card?.s }}]:
+        {{ current.card?.f }} {{ current.card?.b }}
     </p>
 
+    <p class="monitor">{{ keyMonitor }}</p>
+
     <main v-bind:class="mark.name">
+
+        <input ref="theInput" type="text" />
+        <p class="typed-in" v-show="showTypedIn" :style="{ color: typedInColor }">
+            {{ typedIn }}
+        </p>
+
         <p class="word">
             <span v-show="playback.on" class="playback"></span>
-            <span v-html="word" />
+            <!-- <span v-html="word" /> -->
+            <span
+                v-show="displayStage === 'forward'"
+                v-html="current.word?.question"
+            />
+            <span
+                v-show="displayStage === 'backward'"
+                v-html="current.word?.hint"
+            />
+            <span
+                v-show="displayStage === 'answer'"
+                v-html="current.word?.answer"
+            />
             <span v-show="playback.on" class="playback"> 🔊</span>
         </p>
-        <p class="transc">{{ transc }}</p>
-        <p class="transl" v-html="transl" />
-        <p class="example" v-html="example" />
+        <!-- <p class="transc">{{ transc }}</p> -->
+        <p class="transc" v-show="displayStage === 'answer'">
+            {{ current.card?.transc }}
+        </p>
+        <!-- <p class="transl" v-html="transl" /> -->
+        <p
+            class="transl"
+            v-show="displayStage === 'backward' || displayStage === 'answer'"
+            v-html="current.card?.transl"
+        />
+        <!-- <p class="example" v-html="example" /> -->
+        <p
+            class="example"
+            v-show="displayStage === 'answer'"
+            v-html="current.card?.example"
+        />
     </main>
 </template>
