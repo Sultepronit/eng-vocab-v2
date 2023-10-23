@@ -7,7 +7,7 @@
 :root {
     --BUTTON-ZISE: 6rem;
 }
-
+/*
 header {
     margin: 0.5rem;   
     margin-bottom: 0;  
@@ -28,15 +28,15 @@ header {
 
 .persentage {
     font-weight: bold;
-}
+} */
 
-main {
+/* main {
     margin: 0.5rem;
     margin-top: 1.3rem;
     text-align: center;
-}
+} */
 
-.word {
+/* .word {
     font-size: 2.2rem;
 }
 
@@ -60,11 +60,10 @@ main {
     margin-left: 0.5rem;
     font-size: 3rem;
     color: red;
-}
+} */
 
-.navig {
+/* .navig {
     position: fixed;
-    /* position: sticky; */
     bottom: 0;
 
     height: var(--BUTTON-ZISE);
@@ -78,8 +77,8 @@ main {
     flex-grow: 1;
 
     display: flex;
-}
-
+} */
+/* 
 .navig button {
     flex-basis: var(--BUTTON-ZISE);
     flex-grow: 1;
@@ -98,10 +97,6 @@ button.good {
     background: green;
 }
 
-/* button.neutral {
-    background: gray;
-} */
-
 button.bad {
     background: red;
-}
+} */

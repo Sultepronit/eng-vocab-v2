@@ -1,5 +1,5 @@
 import { getData } from '@/api.js';
-//import { updateMaxToRepeat } from '@/updateDB';
+import { updateMaxToRepeat } from './updateDB';
 
 function prepareSession(data) {
     const session = {
@@ -16,12 +16,9 @@ function prepareSession(data) {
 	}
 
     const dif = session.repeatList.length - 400;
-    //console.log(dif);
 	if(dif < 0) {
-        //console.log(data.maxToRepeat);
 		data.maxToRepeat -= dif * 2;
-        //console.log(data.maxToRepeat);
-		//updateMaxToRepeat(data.maxToRepeat);
+		updateMaxToRepeat(data.maxToRepeat);
 	}
 
     console.log(session.repeatList);

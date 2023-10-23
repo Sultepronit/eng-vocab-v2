@@ -2,13 +2,13 @@ import { postData } from "@/api";
 const sheet = 'db';
 
 function updateMaxToRepeat(newVal) {
-    postData(sheet, [['L12', newVal]]);
-    //postData(sheet, [['M12', newVal]]);
+    postData(sheet, [['L13', newVal]]);
+    //postData(sheet, [['M13', newVal]]);
 }
 
 function updateNextRepeated(newVal) {
-    //postData(sheet, [['L10', newVal]]);
-    postData(sheet, [['M10', newVal]]);
+    postData(sheet, [['L11', newVal]]);
+    //postData(sheet, [['M11', newVal]]);
 }
 
 function updateCard(id, card) {

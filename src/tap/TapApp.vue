@@ -211,5 +211,98 @@ export default {
 </template>
 
 <style scoped>
+header {
+    margin: 0.5rem;   
+    margin-bottom: 0;  
+}
 
+.playButton {
+    position: absolute;
+    top: 1.6rem;
+    width: 100%;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.second-line {
+    display: flex;
+    justify-content: space-between;
+}
+
+.persentage {
+    font-weight: bold;
+}
+
+main {
+    margin: 0.5rem;
+    margin-top: 1.3rem;
+    text-align: center;
+}
+
+.word {
+    font-size: 2.2rem;
+}
+
+.transc {
+    font-size: 1.5rem;
+}
+
+.transl {
+    font-size: 1.5rem;
+    margin: 0.5rem 0 0.5rem;
+}
+
+.example {
+    font-size: 1.5rem;
+    font-style: italic;
+}
+
+.reset {
+    position: fixed;
+    bottom: var(--BUTTON-ZISE);
+    margin-left: 0.5rem;
+    font-size: 3rem;
+    color: red;
+}
+
+.navig {
+    position: fixed;
+    /* position: sticky; */
+    bottom: 0;
+
+    height: var(--BUTTON-ZISE);
+    width: 100%;
+
+    display: flex;
+}
+
+.eval {
+    flex-basis: var(--BUTTON-ZISE);
+    flex-grow: 1;
+
+    display: flex;
+}
+
+.navig button {
+    flex-basis: var(--BUTTON-ZISE);
+    flex-grow: 1;
+    margin: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 1rem;
+    border: none;
+    background: gray;
+}
+
+.navig button:active {
+    background: yellow;
+    border: 2px solid black;
+}
+
+button.good {
+    background: green;
+}
+
+button.bad {
+    background: red;
+}
 </style>

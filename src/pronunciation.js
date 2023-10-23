@@ -32,8 +32,6 @@ function endedSpeaking() {
 
 audio.onended = endedSpeaking;
 
-console.log('the audio is created!');
-
 function prepareRecord(item) {
     const url = item.getNextUrl();
     audio.src = url;

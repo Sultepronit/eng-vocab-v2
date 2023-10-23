@@ -14,27 +14,26 @@ function changeVoice() {
     }
 }
 
-speechSynthesis.speak(new SpeechSynthesisUtterance('Hello!'));
+//speechSynthesis.speak(new SpeechSynthesisUtterance('Hello!'));
+speechSynthesis.speak(new SpeechSynthesisUtterance(''));
 setTimeout(() => {
     const allVoices = speechSynthesis.getVoices();
     //console.log(voices);
     for(const voice of allVoices) {
         //if(voice.lang.match('en')) {
         if(voice.lang.match('en-US') || voice.lang.match('en-GB')) {
-            //console.log(voice);
             voices.push(voice);
         }
     }
     console.log(voices);
     changeVoice();
+
 }, 2000);
 
 utterance.onend = () => {
     endedSpeaking();
     changeVoice();
-}
-
-console.log('the speech synthesis is ready!');
+};
 
 function generateSpeech(text) {
     utterance.text = text;
