@@ -12,8 +12,7 @@ function learn(mark, progress, current, session) {
         console.log(session.learnList);
     }
 
-    const change = mark === 'GOOD' ? 1
-        : mark === 'BAD' ? -1 : 0;
+	const change = mark === 'GOOD' ? 1 : -1;
         
     if(current.direction === 'FORWARD') {
         current.card.f += change;
@@ -38,7 +37,9 @@ function confirmAndRepeat(mark, progress, current, newStatus) {
         progress.minus++;
     }
 
-    const change = mark === 'GOOD' ? 1 : -1;
+    const change = mark === 'GOOD' ? 1
+        : mark === 'BAD' ? -1 : 0;
+        
     if(current.direction === 'FORWARD') {
         current.card.f += change;
     } else { // BACKWARD
