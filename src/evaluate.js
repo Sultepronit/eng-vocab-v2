@@ -14,10 +14,10 @@ function returnCard(current, session) {
     // session.content.push('LEARN');
     session.content.push('REMEMBER');
     // session.learnList.push(current.cardId);
-    session.returnList.push(current.cardId);
+    session.rememberList.push(current.cardId);
     console.log("I'm back!");
     // console.log(session.learnList);
-    console.log(session.content);
+    // console.log(session.content);
     console.log(session.rememberList);
 }
 

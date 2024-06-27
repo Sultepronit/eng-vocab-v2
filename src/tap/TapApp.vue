@@ -222,7 +222,11 @@ export default {
           v-show="this.current.cardType === 'LEARN' || this.current.cardType === 'REMEMBER'"
           @click="evaluateAndSave('RETURN')"
         />
-        <button class="bad" @click="evaluateAndSave('BAD')" /> 
+        <button
+          class="bad"
+          v-show="this.current.cardType !== 'REMEMBER'"
+          @click="evaluateAndSave('BAD')"
+        /> 
       </section>
 
     </section>
