@@ -1,28 +1,61 @@
 import { updateNextRepeated } from '@/updateDB';
 
-function learn(mark, progress, current, session) {
+function basicIncrement(mark, progress, current) {
     if(mark === 'GOOD') {
         progress.plus++;
-    } else { // BAD or NEUTRAL
+        current.card[current.direction[0].toLowerCase()] = 1;
+    } else {
         progress.minus++;
+        current.card[current.direction[0].toLowerCase()]--;
+    }
+}
 
-        session.content.push('LEARN');
-        session.learnList.push(current.cardId);
-        console.log("I'm back!");
-        console.log(session.learnList);
+function returnCard(current, session) {
+    // session.content.push('LEARN');
+    session.content.push('REMEMBER');
+    // session.learnList.push(current.cardId);
+    session.returnList.push(current.cardId);
+    console.log("I'm back!");
+    // console.log(session.learnList);
+    console.log(session.content);
+    console.log(session.rememberList);
+}
+
+function remember(mark, progress, current, session) {
+    basicIncrement(mark, progress, current);
+
+    if(mark === 'RETURN') {
+        returnCard(current, session);
+    }
+}
+
+function learn(mark, progress, current, session) {
+    basicIncrement(mark, progress, current);
+    // if(mark === 'GOOD') {
+    //     progress.plus++;
+    // } else {
+    //     progress.minus++;
+    // }
+
+    // if(mark === 'GOOD') {
+    //     current.card[current.direction[0].toLowerCase()] = 1;
+    // } else {
+    //     current.card[current.direction[0].toLowerCase()]--;
+    // }
+
+    // degrade
+    if(mark === 'BAD') {
+        current.card.f = 0;
+        current.card.b = 0;
     }
 
-	const change = mark === 'GOOD' ? 1 : -1;
-        
-    if(current.direction === 'FORWARD') {
-        current.card.f += change;
-        if(current.card.f < 0 && mark === 'GOOD') current.card.f = 0;
-    } else { // BACKWARD
-        current.card.b += change;
-        if(current.card.b < -1) current.card.f = current.card.b = 0;
+    // return
+    if(mark === 'BAD' || mark === 'RETURN') {
+        returnCard(current, session);
     }
 
-    if(current.card.f > 1 && current.card.b > 1) {
+    // upgrade
+    if(current.card.f > 0 && current.card.b > 0) {
         progress.upgraded++;
         current.card.s = 1;
         current.card.f = 0;
@@ -73,4 +106,4 @@ function repeat(mark, progress, current, session) {
     });
 }
 
-export default { learn, confirm, repeat };
+export default { learn, confirm, repeat, remember };

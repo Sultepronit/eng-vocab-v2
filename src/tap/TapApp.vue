@@ -1,5 +1,5 @@
 <script>
-import startSession from '@/startSession';
+import startSession from './startSession.js';
 import nextCard from './nextCard';
 import evaluate from '@/evaluate';
 import { updateCard } from '@/updateDB';
@@ -31,6 +31,9 @@ export default {
           minus: 0,
           upgraded: 0,
           degraded: 0
+        },
+        remember: {
+          minus: 0,
         }
       },
 
@@ -173,6 +176,7 @@ export default {
       r:{{ session.repeatNumber }}
       {{ `${progress.repeat.plus}-${progress.repeat.minus}` }}
       <strong>{{ `${progress.repeat.upgraded}-${progress.repeat.degraded}` }}</strong>
+      | <i>{{ progress.remember.minus }}</i>
     </p>
 
     <div class="second-line">
@@ -186,10 +190,6 @@ export default {
       </p>
     </div>
 
-    <p class="playButton" @click="play">
-      <span v-show="!playback.on">🔈</span>
-      <span v-show="playback.on">🔊</span>
-    </p>
   </header>
 
   <main>
@@ -199,29 +199,40 @@ export default {
     <p class="example" v-html="example" />
   </main>
 
-  <p class="reset" @click="reset" v-if="enableReset">↻</p>
-  <section class="navig">
-    <button class="show" v-show="buttons==='SHOW'" @click="showAnswer" />
-    <section class="eval" v-show="buttons==='EVALUATE' && !playback.on">
-      <button class="good" @click="evaluateAndSave('GOOD')" />
-      <button class="neutral" @click="evaluateAndSave('NEUTRAL')" />
-      <button class="bad" @click="evaluateAndSave('BAD')" /> 
+  <footer> 
+    <p class="reset" @click="reset" v-if="enableReset">↻</p>
+
+    <p class="playButton" @click="play">
+        <span v-show="!playback.on">🔈</span>
+        <span v-show="playback.on">🔊</span>
+    </p>
+
+    <section class="navig">
+      <button class="show" v-show="buttons==='SHOW'" @click="showAnswer" />
+
+      <section class="eval" v-show="buttons==='EVALUATE' && !playback.on">
+        <button
+          class="good"
+          v-show="this.current.cardType !== 'REMEMBER'"
+          @click="evaluateAndSave('GOOD')"
+        />
+        <button class="neutral" @click="evaluateAndSave('NEUTRAL')" />
+        <button
+          class="return"
+          v-show="this.current.cardType === 'LEARN' || this.current.cardType === 'REMEMBER'"
+          @click="evaluateAndSave('RETURN')"
+        />
+        <button class="bad" @click="evaluateAndSave('BAD')" /> 
+      </section>
+
     </section>
-  </section>
+  </footer>
 </template>
 
 <style scoped>
 header {
     margin: 0.5rem;   
     margin-bottom: 0;  
-}
-
-.playButton {
-    position: absolute;
-    top: 1.6rem;
-    width: 100%;
-    text-align: center;
-    font-size: 2rem;
 }
 
 .second-line {
@@ -255,6 +266,16 @@ main {
 .example {
     font-size: 1.5rem;
     font-style: italic;
+}
+
+.playButton {
+    position: absolute;
+    bottom: var(--BUTTON-ZISE);
+    left: calc(50% - 0.4em);
+    /* top: 1.6rem; */
+    /*width: 100%;*/
+    text-align: center;
+    font-size: 2rem;
 }
 
 .reset {
@@ -300,6 +321,10 @@ main {
 
 button.good {
     background: green;
+}
+
+button.return {
+  background: yellow;
 }
 
 button.bad {

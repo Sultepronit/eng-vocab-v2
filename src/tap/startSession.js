@@ -9,6 +9,7 @@ function prepareSession(data) {
         learnList: [],
         confirmList: [],
         repeatList: [],
+        rememberList: [],
         content: []
     };
 

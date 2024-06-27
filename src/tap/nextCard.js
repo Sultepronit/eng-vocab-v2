@@ -2,12 +2,13 @@ import { pullRandomFromArray } from '@/commonFunctions';
 import splitWordVariants from '@/splitWordVariants';
 
 function nextCard(session) {
-    const { cards, content, learnList, confirmList, repeatList } = session;
+    const { cards, content, learnList, confirmList, repeatList, rememberList } = session;
     const cardType = pullRandomFromArray(content);
 
     const cardId = cardType === 'LEARN' ? pullRandomFromArray(learnList)
         : cardType === 'CONFIRM' ? pullRandomFromArray(confirmList)
-            : pullRandomFromArray(repeatList);
+            : cardType === 'REMEMBER' ? pullRandomFromArray(rememberList)
+                : pullRandomFromArray(repeatList);
 
     const card = cards[cardId];
     //const card = cards[23];
