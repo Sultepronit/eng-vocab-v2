@@ -12,6 +12,7 @@ const progress = reactive({
     repeated: 0,
     good: 0,
     bad: 0,
+    neutral: 0,
     upgraded: 0,
     degraded: 0
 });
@@ -74,6 +75,12 @@ let current = {};
 const displayStage = ref('');
 
 function showNext() {
+    if(session.content.length < 1) {
+        console.log('finish!');
+        session.finished = true;
+        return;
+    }
+
     current = reactive( nextCard(session) );
     displayStage.value = current.direction;
     typedIn.value = '';
@@ -93,7 +100,7 @@ function evaluateAnswer() {
         correctInput = true;
         typedInColor.value = 'blue';
     } else {
-        mark.value = marks.BAD;
+        mark.value = marks.NEUTRAL;
         correctInput = false;
         typedInColor.value = 'red';
         if(typedIn.value === '') typedIn.value = '~';
@@ -146,7 +153,7 @@ function evaluateAndSave() {
     console.log(current);
 
     evaluate(progress, mark.value, current, session);
-    updateCard(current.cardId, current.card);
+    updateCard(current.card);
 
     if(current.direction === directions.FORWARD || !correctInput) {
         trainWriting();
@@ -171,12 +178,12 @@ function evaluateAndSave() {
 
     <p class="monitor">{{ keyMonitor }}</p>
 
-    <input ref="theInput" type="text" />
-    <p class="typed-in" v-show="showTypedIn" :style="{ color: typedInColor }">
-        {{ typedIn }}
-    </p>
-
-    <main v-bind:class="mark.name">
+    <main v-bind:class="mark.name" v-show="!session.finished">
+        <input ref="theInput" type="text" />
+        <p class="typed-in" v-show="showTypedIn" :style="{ color: typedInColor }">
+            {{ typedIn }}
+        </p>
+        
         <p class="word">
             <span v-show="playback.on" class="playback"></span>
             

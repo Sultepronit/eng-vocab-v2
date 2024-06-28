@@ -3,22 +3,19 @@ const sheet = 'db';
 
 function updateMaxToRepeat(newVal) {
     postData(sheet, [['L13', newVal]]);
-    //postData(sheet, [['M13', newVal]]);
 }
 
 function updateNextRepeated(newVal) {
     postData(sheet, [['L11', newVal]]);
-    //postData(sheet, [['M11', newVal]]);
 }
 
-function updateCard(id, card) {
-    const row = id + 1;
+function updateCard(card) {
     const changes = [
-        ['D'+row, card.s],
-        ['E'+row, card.f],
-        ['F'+row, card.b]
+        ['D'+card.id, card.s],
+        ['E'+card.id, card.f],
+        ['F'+card.id, card.b]
     ];
-    if(card.toReturn) changes.push(['A'+row, 0]);
+    if(card.toReturn) changes.push(['A'+card.id, 0]);
     postData(sheet, changes);
 }
 

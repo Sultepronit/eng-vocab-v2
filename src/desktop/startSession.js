@@ -1,47 +1,24 @@
 import { getData } from '@/api.js';
 import { updateMaxToRepeat } from './updateDB';
+import { pullRandomFromArray } from '@/commonFunctions';
 
-function prepareSession(data) {
-    const session = {
-        cards: data.parsedDb,
-        nextRepeated: data.nextRepeated,
-        repeatList: [],
-    };
-
-    for(let i = 0; i < data.parsedDb.length; i++) {
-        if(!data.parsedDb[i]) continue;
-		if(data.parsedDb[i].s > data.maxToRepeat) continue;
-		
-		session.repeatList.push(i);
-	}
-
-    const dif = session.repeatList.length - 400;
-	if(dif < 0) {
-		data.maxToRepeat -= dif * 2;
-		updateMaxToRepeat(data.maxToRepeat);
-	}
-
-    console.log(session.repeatList);
-
-    return session;
-}
+let nextRepeated = 0;
 
 function parseDb(dataSheet) {
-    const result = {
-        parsedDb: [],
-        nextRepeated: dataSheet[10][11],
-        maxToRepeat: dataSheet[12][11],
-    }
+    const cards = [];
+    nextRepeated = dataSheet[10][11];
+    let maxToRepeat = dataSheet[12][11];
 
+    let id = 0;
     for(let e of dataSheet) {
+        id++;
         if(isNaN(e[0])) break;
         
-        if(e[0] < 2) {
-            result.parsedDb.push(null);
-            continue;
-        }
+        if(e[0] < 2) continue;
+        if(e[3] > maxToRepeat) continue;
 
-        let obj = {
+        cards.push({
+            id,
             s: e[3],
             f: e[4],
             b: e[5],
@@ -49,27 +26,37 @@ function parseDb(dataSheet) {
             transc: e[7],
             transl: e[8],
             example: e[9]
-        };
-        result.parsedDb.push(obj);
+        });
     }
     //console.log(result.parsedDb);
-    console.log(result.parsedDb.length);
+    console.log(cards.length);
 
-    console.log(result);
-    return result;
+    const dif = cards.length - 400;
+	if(dif < 0) {
+		maxToRepeat -= dif * 2;
+		updateMaxToRepeat(maxToRepeat);
+	}
+
+    return cards;
+}
+
+function prepareSession(data) {
+    const content = [];
+    for(let i = 0; i < 60; i++) {
+        content.push(pullRandomFromArray(data));
+    }
+
+    return { content, nextRepeated };
 }
 
 async function startSession() {
-    console.timeLog('tt', 'fetching data!');
     const dataSheet = await getData('db', 'A', 'L');
-    console.timeLog('tt', 'received data!');
 
     const parsedDb = parseDb(dataSheet);
-    console.timeLog('tt', 'parsed sheet');
+    console.log(parsedDb);
 
     const session = prepareSession(parsedDb);
     console.log(session);
-    console.timeLog('tt', 'prepared session!');
 
     return new Promise(res => res(session));
 }

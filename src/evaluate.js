@@ -71,8 +71,8 @@ function repeat(mark, progress, current, session) {
     // upgrade
     if(current.card.f > 0 && current.card.b > 0) {
         progress.upgraded++;
-        updateNextRepeated(++session.nextRepeated);
-        upgradeOrDegrade(current, session.nextRepeated);
+        upgradeOrDegrade(current, session.nextRepeated++);
+        updateNextRepeated(session.nextRepeated);
     }
 }
 
