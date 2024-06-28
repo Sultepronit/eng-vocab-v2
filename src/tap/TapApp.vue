@@ -139,8 +139,6 @@ export default {
 
       updateCard(this.current.cardId, this.current.card);
 
-      //saveSession({ session: this.session, progress: this.progress });
-
       if(this.session.content.length < 1) {
         this.word = 'Happy End!';
         this.transc = '';
@@ -219,7 +217,7 @@ export default {
         <button class="neutral" @click="evaluateAndSave('NEUTRAL')" />
         <button
           class="return"
-          v-show="this.current.cardType === 'LEARN' || this.current.cardType === 'REMEMBER'"
+          v-show="this.current.cardType !== 'CONFIRM'"
           @click="evaluateAndSave('RETURN')"
         />
         <button
