@@ -16,6 +16,8 @@ async function getData(sheet, firstCol, lastCol) {
 }
 
 async function postData(sheet, data) {
+	// console.log('Not saved!');
+	// return;
 	//console.log('saving...');
 	const url = urlBase + '?sheet=' + sheet;
 	const params = {

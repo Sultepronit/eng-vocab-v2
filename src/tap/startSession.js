@@ -9,6 +9,7 @@ function prepareSession(data) {
         learnList: [],
         confirmList: [],
         repeatList: [],
+        rememberList: [],
         content: []
     };
 
@@ -43,7 +44,7 @@ function prepareSession(data) {
     console.log("repeat: " + session.repeatNumber);
 	session.confirmNumber = Math.round(session.confirmList.length / data.confirmDivider);
 	console.log("confirm: " + session.confirmNumber);
-	session.learnNumber = session.learnList.length - 1;
+	session.learnNumber = session.learnList.length;
 	console.log("learn: " + session.learnNumber);
 
     for(let i = 0; i < session.repeatNumber; i++) session.content.push("REPEAT");

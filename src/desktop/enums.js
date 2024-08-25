@@ -5,8 +5,8 @@ const directions = {
 
 const marks = {
     GOOD: { name: 'good', increment: 1 },
-    BAD: { name: 'bad', increment: -1 },
-    NEUTRAL: { name: 'neutral', increment: 0 },
+    BAD: { name: 'bad', increment: -100 },
+    NEUTRAL: { name: 'neutral', increment: -1 },
     NULL: { name: '', increment: 0 },
 };
 
