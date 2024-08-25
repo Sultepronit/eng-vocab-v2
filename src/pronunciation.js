@@ -1,8 +1,12 @@
 import fetchAudioUrls from './fetchAudioUrls';
 import { randomFromRange } from '@/commonFunctions';
 import { generateSpeech } from './speechSynth';
-const theModule = await import(import.meta.env.VITE_MY_SYNTH_FN);
-const urlsForExpression = theModule.default;
+// const theModule = await import(import.meta.env.VITE_MY_SYNTH_FN);
+// const urlsForExpression = theModule.default;
+let urlsForExpression = null;
+import(import.meta.env.VITE_MY_SYNTH_FN).then(
+    module => urlsForExpression = module.default
+);
 
 const audio = new Audio();
 const playlist = [];
