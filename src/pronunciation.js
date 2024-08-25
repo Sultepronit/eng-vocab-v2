@@ -1,6 +1,8 @@
 import fetchAudioUrls from './fetchAudioUrls';
 import { randomFromRange } from '@/commonFunctions';
 import { generateSpeech } from './speechSynth';
+const theModule = await import(import.meta.env.VITE_MY_SYNTH_FN);
+const urlsForExpression = theModule.default;
 
 const audio = new Audio();
 const playlist = [];
@@ -81,7 +83,7 @@ function preparePlaylist(variants) {
 
     for(const variant of variants) {
         const shortUrls = urlList[variant.toLowerCase()];
-        //const shortUrls = null;
+        // const shortUrls = null;
         if(shortUrls) {
             playlist.push({
                 type: 'play',
@@ -98,10 +100,24 @@ function preparePlaylist(variants) {
             });
         } else {
             playlist.push({
-                type: 'generate',
-                text: variant
+                type: 'play',
+                text: variant,
+                urls: urlsForExpression(variant),
+                index: 0,
+                getNextUrl() {
+                    const url = this.urls[this.index++];
+                    if(this.index >= this.urls.length) this.index = 0;
+                    return url;
+                }
             });
         }
+        
+        // else {
+        //     playlist.push({
+        //         type: 'generate',
+        //         text: variant
+        //     });
+        // }
     }
     console.log('playlist:');
     console.log(playlist);
